@@ -6,7 +6,9 @@ declare global {
     var prisma: PrismaClient | undefined
 }
 
-const prismaClient: PrismaClient = new PrismaClient()
+const prismaClient: PrismaClient = new PrismaClient({
+    accelerateUrl: process.env.DATABASE_URL,
+})
 
 if (config.node_env !== 'production') globalThis.prisma = prismaClient
 

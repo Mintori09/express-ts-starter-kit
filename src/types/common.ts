@@ -26,4 +26,3 @@ export type SanitizeOptions = IFilterXSSOptions & {
 export interface EmailRequestBody {
     email: string
 }
-

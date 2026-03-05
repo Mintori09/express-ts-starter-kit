@@ -9,15 +9,10 @@ import compressFilter from 'src/utils/compressFilter.util'
 import { errorHandler } from 'src/common/middleware'
 import path from 'node:path'
 import router from 'src/common/routes'
-
+import { HttpStatus } from './common/constants'
 const app: Express = express()
 
-app.use(
-    helmet.frameguard({
-        action: 'deny',
-    })
-)
-
+app.use(helmet())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(xssMiddleware())
@@ -27,8 +22,9 @@ app.use(compression({ filter: compressFilter }))
 
 app.use('/api/v1', router)
 
-app.all('*', (req, res) => {
-    res.status(404)
+app.use((req, res) => {
+    res.status(HttpStatus.BAD_REQUEST)
+
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, 'views', '404.html'))
     } else if (req.accepts('json')) {
