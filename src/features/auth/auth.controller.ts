@@ -5,7 +5,7 @@ import {
     UserSignUpCredentials,
 } from 'src/types/types'
 import * as argon2 from 'argon2'
-import { Response } from 'express'
+import { Response, Request } from 'express'
 import {
     clearRefreshTokenCookieConfig,
     config,
@@ -13,12 +13,14 @@ import {
     refreshTokenCookieConfig,
 } from 'src/config'
 import { randomUUID } from 'node:crypto'
-import { sendVerifyEmail } from 'src/util/sendEmail.util'
+import { sendVerifyEmail } from 'src/utils/sendEmail.util'
 import { logger } from 'src/common/middleware'
 import {
     createAccessToken,
     createRefreshToken,
-} from 'src/util/generateTokens.util'
+} from 'src/utils/generateTokens.util'
+import * as jwt from 'jsonwebtoken'
+import { JwtPayload } from 'jsonwebtoken'
 
 export const handleSignup = async (
     req: TypedRequest<UserSignUpCredentials>,
@@ -26,7 +28,7 @@ export const handleSignup = async (
 ) => {
     const { username, email, password, passwordConfirmed } = req.body
 
-    if (!username || email || !password || !passwordConfirmed) {
+    if (!username || !email || !password || !passwordConfirmed) {
         return res.status(HttpStatus.BAD_REQUEST).json({
             message: 'Username, email and password are required!',
         })
@@ -45,7 +47,7 @@ export const handleSignup = async (
     })
 
     if (checkUserEmail)
-        return res.sendStatus(HttpStatus.CONFLICT).json({
+        return res.status(HttpStatus.CONFLICT).json({
             message: 'Account is exist!',
         })
 
@@ -180,4 +182,117 @@ export const handleLogin = async (
     } catch {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
     }
+}
+export const handleLogout = async (req: Request, res: Response) => {
+    const cookies = req.cookies
+
+    if (!cookies[config.jwt.refresh_token.cookie_name]) {
+        return res.sendStatus(HttpStatus.NO_CONTENT)
+    }
+
+    const refreshToken = cookies[config.jwt.refresh_token.cookie_name]
+
+    const foundRft = await prismaClient.refreshToken.findUnique({
+        where: {
+            token: refreshToken,
+        },
+    })
+
+    if (!foundRft) {
+        res.clearCookie(
+            config.jwt.refresh_token.cookie_name,
+            clearRefreshTokenCookieConfig
+        )
+        return res.sendStatus(HttpStatus.NO_CONTENT)
+    }
+
+    await prismaClient.refreshToken.delete({
+        where: {
+            token: refreshToken,
+        },
+    })
+
+    res.clearCookie(
+        config.jwt.refresh_token.cookie_name,
+        clearRefreshTokenCookieConfig
+    )
+
+    return res.sendStatus(HttpStatus.NO_CONTENT)
+}
+
+export const handleRefresh = async (req: Request, res: Response) => {
+    const refreshToken: string | undefined =
+        req.cookies[config.jwt.refresh_token.cookie_name]
+
+    if (!refreshToken) return res.sendStatus(HttpStatus.UNAUTHORIZED)
+
+    res.clearCookie(
+        config.jwt.refresh_token.cookie_name,
+        clearRefreshTokenCookieConfig
+    )
+
+    const foundRefreshToken = await prismaClient.refreshToken.findUnique({
+        where: {
+            token: refreshToken,
+        },
+    })
+
+    if (!foundRefreshToken) {
+        ;(jwt as any).verify(
+            refreshToken,
+            config.jwt.refresh_token.secret,
+            async (err: unknown, payload: JwtPayload | undefined) => {
+                if (err || !payload) {
+                    return res.sendStatus(HttpStatus.FORBIDDEN)
+                }
+
+                logger.warn('Attempted refresh token reuse!')
+
+                await prismaClient.refreshToken.deleteMany({
+                    where: {
+                        userId: payload.userId,
+                    },
+                })
+            }
+        )
+        return res.sendStatus(HttpStatus.FORBIDDEN);
+    }
+
+    await prismaClient.refreshToken.deleteMany({
+        where: {
+            token: refreshToken,
+        },
+    })
+
+    ;(jwt as any).verify(
+        refreshToken,
+        config.jwt.refresh_token.secret,
+        async (err: unknown, payload: JwtPayload) => {
+            if (err || foundRefreshToken.userId !== payload.userId) {
+                return res.sendStatus(HttpStatus.FORBIDDEN)
+            }
+
+            const accessToken = createAccessToken(payload.userId)
+            const newRefreshToken = createRefreshToken(payload.userId)
+
+            await prismaClient.refreshToken
+                .create({
+                    data: {
+                        token: newRefreshToken,
+                        userId: payload.userId,
+                    },
+                })
+                .catch((err: Error) => {
+                    logger.error(err)
+                })
+
+            res.cookie(
+                config.jwt.refresh_token.cookie_name,
+                newRefreshToken,
+                refreshTokenCookieConfig
+            )
+
+            return res.json({ accessToken })
+        }
+    )
 }

@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import { DeepPartial, Omit } from 'utility-types'
 import { IFilterXSSOptions } from 'xss'
+import validate from 'src/common/middleware/validate'
+
+export type RequestValidationSchema = Parameters<typeof validate>[0]
 
 export type RequireAtLeastOne<T> = {
     [K in keyof T]-?: Required<Pick<T, K>> &

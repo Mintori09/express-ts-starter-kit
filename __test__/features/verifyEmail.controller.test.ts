@@ -1,0 +1,101 @@
+import { HttpStatus } from 'src/common/constants'
+import {
+    sendVerificationEmail,
+    handleVerifyEmail,
+} from 'src/features/verifyEmail/verifyEmail.controller'
+import { prismaClient } from 'src/config'
+import { Response } from 'express'
+import { randomUUID } from 'node:crypto'
+import { sendVerifyEmail } from 'src/utils/sendEmail.util'
+
+// Mock dependencies
+jest.mock('../../src/config', () => ({
+    prismaClient: {
+        user: {
+            findUnique: jest.fn(),
+            update: jest.fn(),
+        },
+        emailVerificationToken: {
+            create: jest.fn(),
+            findFirst: jest.fn(),
+            findUnique: jest.fn(),
+            deleteMany: jest.fn(),
+        },
+    },
+    config: {
+        node_env: 'test',
+    },
+}))
+
+jest.mock('node:crypto')
+jest.mock('../../src/utils/sendEmail.util')
+
+describe('Verify Email Controller', () => {
+    let req: any
+    let res: any
+
+    beforeEach(() => {
+        req = {
+            body: {},
+            params: {},
+        }
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn().mockReturnThis(),
+            sendStatus: jest.fn().mockReturnThis(),
+        }
+        jest.clearAllMocks()
+    })
+
+    describe('sendVerificationEmail', () => {
+        it('should return 400 if email is missing', async () => {
+            req.body = {}
+            await sendVerificationEmail(req, res)
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST)
+        })
+
+        it('should return 404 if email not found', async () => {
+            req.body = { email: 'notfound@example.com' }
+            ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(null)
+
+            await sendVerificationEmail(req, res)
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+        })
+
+        it('should create token and send email if user is not verified', async () => {
+            req.body = { email: 'test@example.com' }
+            const user = { id: '1', emailVerified: null }
+            ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
+            ;(prismaClient.emailVerificationToken.findFirst as jest.Mock).mockResolvedValue(null)
+            ;(randomUUID as jest.Mock).mockReturnValue('token')
+
+            await sendVerificationEmail(req, res)
+
+            expect(prismaClient.emailVerificationToken.create).toHaveBeenCalled()
+            expect(sendVerifyEmail).toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.OK)
+        })
+    })
+
+    describe('handleVerifyEmail', () => {
+        it('should return 404 if token is invalid or expired', async () => {
+            req.params = { token: 'token' }
+            ;(prismaClient.emailVerificationToken.findUnique as jest.Mock).mockResolvedValue(null)
+
+            await handleVerifyEmail(req, res)
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+        })
+
+        it('should verify email and return 200', async () => {
+            req.params = { token: 'token' }
+            const verificationToken = { id: '1', userId: '1', expiresAt: new Date(Date.now() + 100000) }
+            ;(prismaClient.emailVerificationToken.findUnique as jest.Mock).mockResolvedValue(verificationToken)
+
+            await handleVerifyEmail(req, res)
+
+            expect(prismaClient.user.update).toHaveBeenCalled()
+            expect(prismaClient.emailVerificationToken.deleteMany).toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.OK)
+        })
+    })
+})

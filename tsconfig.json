@@ -3,6 +3,10 @@
         "target": "ES2022",
         "module": "es6",
         "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+            "src/*": ["src/*"]
+        },
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": true,

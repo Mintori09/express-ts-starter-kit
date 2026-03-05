@@ -1,10 +1,22 @@
-import httpStatus from 'http-status'
+import { HttpStatus as httpStatus } from 'src/common/constants'
 import type { NextFunction, Request, Response } from 'express'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
-import config from '../../src/config/config'
+import isAuth from 'src/common/middleware/isAuth'
+
+// Mock the config to avoid Prisma initialization
+jest.mock('../../src/config', () => ({
+    config: {
+        jwt: {
+            access_token: {
+                secret: 'test_secret',
+            },
+        },
+    },
+}))
+
+import { config } from 'src/config'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 const { sign } = jwt
 
 describe('isAuth middleware', () => {

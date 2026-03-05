@@ -15,22 +15,29 @@ const envSchema = z.object({
     CORS_ORIGIN: z.string().default('*'),
     ACCESS_TOKEN_SECRET: z
         .string()
-        .min(8, 'ACCESS_TOKEN_SECRET require min 8 chars'),
+        .min(8, 'ACCESS_TOKEN_SECRET require min 8 chars')
+        .default('test_access_token_secret'),
     ACCESS_TOKEN_EXPIRE: z.string().default('20m'),
     REFRESH_TOKEN_SECRET: z
         .string()
-        .min(8, 'ACCESS_TOKEN_SECRET require min 8 chars'),
+        .min(8, 'ACCESS_TOKEN_SECRET require min 8 chars')
+        .default('test_refresh_token_secret'),
 
     REFRESH_TOKEN_EXPIRE: z.string().default('1d'),
     REFRESH_TOKEN_COOKIE_NAME: z.string().default('min'),
-    MYSQL_DATABASE: z.string(),
-    MYSQL_ROOT_PASSWORD: z.string(),
-    DATABASE_URL: z.string(),
-    SMTP_HOST: z.string().regex(/^\d+$/, 'SMPT_PORT require number!'),
-    SMTP_PORT: z.string(),
-    SMTP_USERNAME: z.string(),
-    SMTP_PASSWORD: z.string(),
-    EMAIL_FROM: z.email('EMAIL NOT VALID!'),
+    MYSQL_DATABASE: z.string().default('test_db'),
+    MYSQL_ROOT_PASSWORD: z.string().default('test_password'),
+    DATABASE_URL: z
+        .string()
+        .default('mysql://root:test_password@localhost:3306/test_db'),
+    SMTP_HOST: z.string().default('localhost'),
+    SMTP_PORT: z
+        .string()
+        .regex(/^\d+$/, 'SMTP_PORT require number!')
+        .default('587'),
+    SMTP_USERNAME: z.string().default('test_user'),
+    SMTP_PASSWORD: z.string().default('test_password'),
+    EMAIL_FROM: z.email('EMAIL NOT VALID!').default('test@example.com'),
 })
 
 const parsedEnv = envSchema.safeParse(process.env)
@@ -38,12 +45,16 @@ const parsedEnv = envSchema.safeParse(process.env)
 if (!parsedEnv.success) {
     console.error('Configuration .env is not valid!')
     parsedEnv.error.issues.forEach((issue) => {
-        console.log(` - [${issue.path.join('.')}]: ${issue.message}`)
+        console.error(` - [${issue.path.join('.')}]: ${issue.message}`)
     })
-    process.exit(1)
+    if (process.env.NODE_ENV !== 'test') {
+        process.exit(1)
+    }
 }
 
-const env = parsedEnv.data
+const env = parsedEnv.success
+    ? parsedEnv.data
+    : ({} as z.infer<typeof envSchema>)
 
 const config = {
     node_env: env.NODE_ENV,
@@ -76,6 +87,7 @@ const config = {
         },
         from: env.EMAIL_FROM,
     },
+    database_url: env.DATABASE_URL,
 } as const
 
 export default config

@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import httpStatus from 'http-status'
 
 import jwt, { type JwtPayload } from 'jsonwebtoken'
-import { config } from '../../config'
+import { config } from 'src/config'
 
 // Why does 'jsonwebtoken' not support es6 module support ?????
 // Maybe in future this will be added.....

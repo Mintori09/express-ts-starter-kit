@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express'
-import { config } from '../../config'
-import { HttpStatus } from '../constants'
+import { config } from 'src/config'
+import { HttpStatus } from 'src/common/constants'
 
 export const errorHandler = (
     err: any,

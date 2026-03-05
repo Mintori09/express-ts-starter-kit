@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto'
-import { HttpStatus } from '../../common/constants'
+import { HttpStatus } from 'src/common/constants'
 import * as argon2 from 'argon2'
-import { prismaClient } from '../../config'
+import { prismaClient } from 'src/config'
 import {
     EmailRequestBody,
     ResetPasswordRequestBodyType,
     TypedRequest,
-} from '../../types/types'
+} from 'src/types/types'
 import { Response } from 'express'
-import { sendResetEmail } from '../../util/sendEmail.util'
+import { sendResetEmail } from 'src/utils/sendEmail.util'
 
 export const handleForgotPassword = async (
     req: TypedRequest<EmailRequestBody>,
@@ -28,8 +28,8 @@ export const handleForgotPassword = async (
         },
     })
 
-    if (!user || user.emailVerification) {
-        return res.sendStatus(HttpStatus.UNAUTHORIZED).json({
+    if (!user || user.emailVerified) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
             message: 'Your email is not verified! Please confirm your email!',
         })
     }

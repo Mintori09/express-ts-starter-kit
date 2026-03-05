@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston'
-import { config } from '../../config'
+import { config } from 'src/config'
 const logger = createLogger({
     level: config.node_env === 'production' ? 'info' : 'debug',
     format: format.combine(
