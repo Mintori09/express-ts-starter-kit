@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import type { ParsedQs } from 'qs'
-import { SanitizeOptions } from 'src/types/types'
+import { SanitizeOptions } from 'src/types/common'
 import { sanitize } from 'src/utils/sanitize.util'
 
 export const xssMiddleware = (options?: SanitizeOptions) => {

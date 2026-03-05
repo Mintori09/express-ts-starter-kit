@@ -1,4 +1,4 @@
-import { RequestValidationSchema } from 'src/types/types'
+import { RequestValidationSchema } from 'src/types/request'
 import * as z from 'zod'
 
 export const forgotPasswordSchema: RequestValidationSchema = {

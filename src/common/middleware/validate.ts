@@ -1,16 +1,10 @@
 import * as z from 'zod'
-import { RequireAtLeastOne } from 'src/types/types'
+import { RequestValidationSchema } from 'src/types/request'
 import { NextFunction, Response, Request } from 'express'
 import { HttpStatus } from 'src/common/constants'
 
-type RequestValidationSchema = RequireAtLeastOne<{
-    body?: z.ZodObject<any, any>
-    query?: z.ZodObject<any, any>
-    params?: z.ZodObject<any, any>
-}>
-
 const validate = (schema: RequestValidationSchema) => {
-    const combinedSchema = z.object(schema)
+    const combinedSchema = z.object(schema as any)
 
     return (req: Request, res: Response, next: NextFunction) => {
         const result = combinedSchema.safeParse({

@@ -6,7 +6,7 @@ import {
     createAccessToken,
     createRefreshToken,
 } from 'src/utils/generateTokens.util'
-import { UserSignUpCredentials } from 'src/types/types'
+import { UserSignUpCredentials } from './types'
 import * as jwt from 'jsonwebtoken'
 
 export const createUser = async (data: UserSignUpCredentials) => {

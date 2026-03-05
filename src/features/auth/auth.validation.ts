@@ -1,6 +1,5 @@
 import * as z from 'zod'
-import validate from 'src/common/middleware/validate'
-import { RequestValidationSchema } from 'src/types/types'
+import { RequestValidationSchema } from 'src/types/request'
 
 // We need to type the schemas to match what validate expects if inference fails
 export const signupSchema: RequestValidationSchema = {

@@ -1,9 +1,9 @@
 import { HttpStatus } from 'src/common/constants'
 import {
-    EmailRequestBody,
     ResetPasswordRequestBodyType,
-    TypedRequest,
-} from 'src/types/types'
+} from './types'
+import { EmailRequestBody } from 'src/types/common'
+import { TypedRequest } from 'src/types/request'
 import { Response, NextFunction } from 'express'
 import * as authService from 'src/features/auth/auth.service'
 import * as forgotPasswordService from './forgotPassword.service'

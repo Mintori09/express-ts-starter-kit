@@ -1,9 +1,9 @@
 import { HttpStatus } from 'src/common/constants'
 import {
-    TypedRequest,
     UserLoginCredentials,
     UserSignUpCredentials,
-} from 'src/types/types'
+} from './types'
+import { TypedRequest } from 'src/types/request'
 import * as argon2 from 'argon2'
 import { Response, Request, NextFunction } from 'express'
 import {

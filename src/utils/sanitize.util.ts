@@ -1,4 +1,4 @@
-import type { Sanitized, SanitizeOptions } from 'src/types/types'
+import type { Sanitized, SanitizeOptions } from 'src/types/common'
 import xss from 'xss'
 
 export const sanitize = <T extends unknown>(
