@@ -4,8 +4,12 @@ import {
     refreshTokenCookieConfig,
     clearRefreshTokenCookieConfig,
 } from './cookieConfig'
+import transporter from './nodemailer'
+import prismaClient from './prisma'
 
 export {
+    prismaClient,
+    transporter,
     config,
     corsConfig,
     refreshTokenCookieConfig,

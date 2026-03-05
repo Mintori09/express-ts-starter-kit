@@ -11,6 +11,7 @@ const envSchema = z.object({
         .literal(['development', 'test', 'production'])
         .default('development'),
     PORT: z.string().default('4000'),
+    SERVER_URL: z.string().optional(),
     CORS_ORIGIN: z.string().default('*'),
     ACCESS_TOKEN_SECRET: z
         .string()
@@ -48,6 +49,7 @@ const config = {
     node_env: env.NODE_ENV,
     server: {
         port: env.PORT,
+        url: env.SERVER_URL ? env.SERVER_URL : `http://localhost:${env.PORT}`,
     },
     cors: {
         cors_origin: env.CORS_ORIGIN,
@@ -72,6 +74,7 @@ const config = {
                 password: env.SMTP_PASSWORD,
             },
         },
+        from: env.EMAIL_FROM,
     },
 } as const
 

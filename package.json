@@ -9,17 +9,31 @@
         "start": "node dist/server.ts",
         "test": "jest"
     },
+    "type": "module",
     "keywords": [],
     "author": "",
     "license": "ISC",
     "packageManager": "pnpm@10.30.3",
     "dependencies": {
+        "@prisma/adapter-mariadb": "^7.4.2",
+        "@prisma/client": "^7.4.2",
+        "@types/argon2": "^0.15.4",
+        "@types/compression": "^1.8.1",
+        "@types/express-serve-static-core": "^5.1.1",
+        "@types/qs": "^6.14.0",
+        "argon2": "^0.44.0",
+        "compression": "^1.8.1",
         "cors": "^2.8.6",
         "dotenv": "^17.3.1",
         "express": "^5.2.1",
+        "express-serve-static-core": "^0.1.1",
         "helmet": "^8.1.0",
         "http-status": "^2.1.0",
+        "jsonwebtoken": "^9.0.3",
         "nodemailer": "^8.0.1",
+        "qs": "^6.15.0",
+        "utility-types": "^3.11.0",
+        "xss": "^1.0.15",
         "zod": "^4.3.6"
     },
     "devDependencies": {
@@ -27,10 +41,16 @@
         "@babel/preset-env": "^7.29.0",
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
+        "@types/jsonwebtoken": "^9.0.10",
         "@types/node": "^25.3.3",
+        "@types/nodemailer": "^7.0.11",
+        "@types/winston": "^2.4.4",
         "babel-jest": "^30.2.0",
+        "express-rate-limit": "^8.2.1",
         "jest": "^30.2.0",
+        "prisma": "^7.4.2",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "winston": "^3.19.0"
     }
 }
