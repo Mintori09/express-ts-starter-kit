@@ -1,16 +1,14 @@
 import express, { Application, type Express } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
-import { xssMiddleware } from './common/middleware/xssMiddleware'
-import { config, corsConfig } from './config'
+import { xssMiddleware } from 'src/common/middleware/xssMiddleware'
+import { config, corsConfig } from 'src/config'
 import cookieParser from 'cookie-parser'
 import compression from 'compression'
-import compressFilter from './utils/compressFilter.util'
-import { authLimiter, errorHandler } from './common/middleware'
-import { authRouter } from './features/auth'
-import { passwordRouter } from './features/forgotPassword'
-import { verifyEmailRouter } from './features/verifyEmail'
+import compressFilter from 'src/utils/compressFilter.util'
+import { errorHandler } from 'src/common/middleware'
 import path from 'node:path'
+import router from 'src/common/routes'
 
 const app: Express = express()
 
@@ -26,15 +24,8 @@ app.use(xssMiddleware())
 app.use(cookieParser())
 app.use(cors(corsConfig))
 app.use(compression({ filter: compressFilter }))
-app.use(express.json())
 
-if (config.node_env === 'production') {
-    app.use('api/v1/auth', authLimiter)
-}
-
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1', passwordRouter)
-app.use('/api/v1', verifyEmailRouter)
+app.use('/api/v1', router)
 
 app.all('*', (req, res) => {
     res.status(404)
