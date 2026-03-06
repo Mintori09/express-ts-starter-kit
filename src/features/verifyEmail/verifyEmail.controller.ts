@@ -33,7 +33,9 @@ export const sendVerificationEmail = async (
             })
         }
 
-        const existingToken = await verifyEmailService.getExistingValidToken(user.id)
+        const existingToken = await verifyEmailService.getExistingValidToken(
+            user.id
+        )
 
         if (existingToken) {
             return res.status(HttpStatus.BAD_REQUEST).json({
@@ -51,13 +53,18 @@ export const sendVerificationEmail = async (
     }
 }
 
-export const handleVerifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+export const handleVerifyEmail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { token } = req.params as { token: string }
 
         if (!token) return res.sendStatus(HttpStatus.NOT_FOUND)
 
-        const verificationToken = await verifyEmailService.getVerificationToken(token)
+        const verificationToken =
+            await verifyEmailService.getVerificationToken(token)
 
         if (!verificationToken || verificationToken.expiresAt < new Date()) {
             return res.status(HttpStatus.NOT_FOUND).json({

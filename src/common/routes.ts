@@ -11,16 +11,16 @@ const defaultRoutes = [
     {
         path: '/auth',
         route: authRouter,
-        limiter: config.node_env === 'production' ? authLimiter : undefined
+        limiter: config.node_env === 'production' ? authLimiter : undefined,
     },
     {
         path: '/password',
-        route: passwordRouter
+        route: passwordRouter,
     },
     {
         path: '/verify-email',
-        route: verifyEmailRouter
-    }
+        route: verifyEmailRouter,
+    },
 ]
 
 defaultRoutes.forEach((route) => {

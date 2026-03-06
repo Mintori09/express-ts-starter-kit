@@ -90,7 +90,9 @@ describe('Forgot Password Controller', () => {
         it('should return 404 if token is invalid or expired', async () => {
             req.params = { token: 'token' }
             req.body = { newPassword: 'password' }
-            ;(prismaClient.resetToken.findFirst as jest.Mock).mockResolvedValue(null)
+            ;(prismaClient.resetToken.findFirst as jest.Mock).mockResolvedValue(
+                null
+            )
 
             await handleResetPassword(req, res, next)
             expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
@@ -100,7 +102,9 @@ describe('Forgot Password Controller', () => {
             req.params = { token: 'token' }
             req.body = { newPassword: 'password' }
             const resetToken = { id: '1', userId: '1' }
-            ;(prismaClient.resetToken.findFirst as jest.Mock).mockResolvedValue(resetToken)
+            ;(prismaClient.resetToken.findFirst as jest.Mock).mockResolvedValue(
+                resetToken
+            )
             ;(argon2.hash as jest.Mock).mockResolvedValue('hashed')
 
             await handleResetPassword(req, res, next)

@@ -6,7 +6,7 @@ import * as argon2 from 'argon2'
 export const createResetToken = async (userId: string, email: string) => {
     const resetToken = randomUUID()
     const expiresAt = new Date(Date.now() + 3600000)
-    
+
     await prismaClient.resetToken.create({
         data: {
             token: resetToken,
@@ -28,7 +28,10 @@ export const getResetToken = async (token: string) => {
     })
 }
 
-export const resetUserPassword = async (userId: string, newPassword: string) => {
+export const resetUserPassword = async (
+    userId: string,
+    newPassword: string
+) => {
     const hashedPassword = await argon2.hash(newPassword)
 
     await prismaClient.user.update({

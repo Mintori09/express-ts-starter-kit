@@ -2,7 +2,10 @@ import { prismaClient } from 'src/config'
 import { randomUUID } from 'node:crypto'
 import { sendVerifyEmail } from 'src/utils/sendEmail.util'
 
-export const createVerificationToken = async (userId: string, email: string) => {
+export const createVerificationToken = async (
+    userId: string,
+    email: string
+) => {
     const token = randomUUID()
     const expiresAt = new Date(Date.now() + 3600000)
 

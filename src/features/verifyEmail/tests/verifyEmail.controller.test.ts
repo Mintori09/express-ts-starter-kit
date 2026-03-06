@@ -68,7 +68,9 @@ describe('Verify Email Controller', () => {
             req.body = { email: 'test@example.com' }
             const user = { id: '1', emailVerified: null }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
-            ;(prismaClient.emailVerificationToken.findFirst as jest.Mock).mockResolvedValue(null)
+            ;(
+                prismaClient.emailVerificationToken.findFirst as jest.Mock
+            ).mockResolvedValue(null)
             ;(randomUUID as jest.Mock).mockReturnValue('token')
 
             await sendVerificationEmail(req, res, next)
@@ -80,7 +82,9 @@ describe('Verify Email Controller', () => {
     describe('handleVerifyEmail', () => {
         it('should return 404 if token is invalid or expired', async () => {
             req.params = { token: 'token' }
-            ;(prismaClient.emailVerificationToken.findUnique as jest.Mock).mockResolvedValue(null)
+            ;(
+                prismaClient.emailVerificationToken.findUnique as jest.Mock
+            ).mockResolvedValue(null)
 
             await handleVerifyEmail(req, res, next)
             expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
@@ -88,8 +92,14 @@ describe('Verify Email Controller', () => {
 
         it('should verify email and return 200', async () => {
             req.params = { token: 'token' }
-            const verificationToken = { id: '1', userId: '1', expiresAt: new Date(Date.now() + 100000) }
-            ;(prismaClient.emailVerificationToken.findUnique as jest.Mock).mockResolvedValue(verificationToken)
+            const verificationToken = {
+                id: '1',
+                userId: '1',
+                expiresAt: new Date(Date.now() + 100000),
+            }
+            ;(
+                prismaClient.emailVerificationToken.findUnique as jest.Mock
+            ).mockResolvedValue(verificationToken)
 
             await handleVerifyEmail(req, res, next)
 

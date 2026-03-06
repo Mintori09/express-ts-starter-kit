@@ -66,7 +66,7 @@ export const createSession = async (userId: string) => {
 
 export const verifyToken = (token: string, secret: string): Promise<any> => {
     return new Promise((resolve, reject) => {
-        (jwt as any).verify(token, secret, (err: any, payload: any) => {
+        ;(jwt as any).verify(token, secret, (err: any, payload: any) => {
             if (err) return reject(err)
             resolve(payload)
         })

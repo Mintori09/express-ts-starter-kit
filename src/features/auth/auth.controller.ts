@@ -1,8 +1,5 @@
 import { HttpStatus } from 'src/common/constants'
-import {
-    UserLoginCredentials,
-    UserSignUpCredentials,
-} from './types'
+import { UserLoginCredentials, UserSignUpCredentials } from './types'
 import { TypedRequest } from 'src/types/request'
 import * as argon2 from 'argon2'
 import { Response, Request, NextFunction } from 'express'
@@ -71,7 +68,8 @@ export const handleLogin = async (
 
         if (!user.emailVerified) {
             return res.status(HttpStatus.UNAUTHORIZED).json({
-                message: 'Your email is not verified! Please confirm your email',
+                message:
+                    'Your email is not verified! Please confirm your email',
             })
         }
 
@@ -85,7 +83,8 @@ export const handleLogin = async (
 
         if (cookies?.[config.jwt.refresh_token.cookie_name]) {
             const refreshToken = cookies[config.jwt.refresh_token.cookie_name]
-            const checkRefreshToken = await authService.getRefreshTokenByToken(refreshToken)
+            const checkRefreshToken =
+                await authService.getRefreshTokenByToken(refreshToken)
 
             if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
                 await authService.deleteAllUserRefreshTokens(user.id)
@@ -99,7 +98,9 @@ export const handleLogin = async (
             )
         }
 
-        const { accessToken, refreshToken } = await authService.createSession(user.id)
+        const { accessToken, refreshToken } = await authService.createSession(
+            user.id
+        )
 
         res.cookie(
             config.jwt.refresh_token.cookie_name,
@@ -115,7 +116,11 @@ export const handleLogin = async (
     }
 }
 
-export const handleLogout = async (req: Request, res: Response, next: NextFunction) => {
+export const handleLogout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const cookies = req.cookies
 
@@ -147,7 +152,11 @@ export const handleLogout = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export const handleRefresh = async (req: Request, res: Response, next: NextFunction) => {
+export const handleRefresh = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const refreshToken: string | undefined =
             req.cookies[config.jwt.refresh_token.cookie_name]
@@ -159,11 +168,15 @@ export const handleRefresh = async (req: Request, res: Response, next: NextFunct
             clearRefreshTokenCookieConfig
         )
 
-        const foundRefreshToken = await authService.getRefreshTokenByToken(refreshToken)
+        const foundRefreshToken =
+            await authService.getRefreshTokenByToken(refreshToken)
 
         if (!foundRefreshToken) {
             try {
-                const payload = await authService.verifyToken(refreshToken, config.jwt.refresh_token.secret)
+                const payload = await authService.verifyToken(
+                    refreshToken,
+                    config.jwt.refresh_token.secret
+                )
                 await authService.deleteAllUserRefreshTokens(payload.userId)
             } catch (err) {
                 // Ignore verify errors here, just forbidden
@@ -174,13 +187,17 @@ export const handleRefresh = async (req: Request, res: Response, next: NextFunct
         await authService.deleteRefreshToken(refreshToken)
 
         try {
-            const payload = await authService.verifyToken(refreshToken, config.jwt.refresh_token.secret)
-            
+            const payload = await authService.verifyToken(
+                refreshToken,
+                config.jwt.refresh_token.secret
+            )
+
             if (foundRefreshToken.userId !== payload.userId) {
                 return res.sendStatus(HttpStatus.FORBIDDEN)
             }
 
-            const { accessToken, refreshToken: newRefreshToken } = await authService.createSession(payload.userId)
+            const { accessToken, refreshToken: newRefreshToken } =
+                await authService.createSession(payload.userId)
 
             res.cookie(
                 config.jwt.refresh_token.cookie_name,

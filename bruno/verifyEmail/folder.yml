@@ -1,7 +1,7 @@
 info:
-  name: verifyEmail
-  type: folder
-  seq: 6
+    name: verifyEmail
+    type: folder
+    seq: 6
 
 request:
-  auth: inherit
+    auth: inherit
