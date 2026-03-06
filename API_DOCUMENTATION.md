@@ -128,7 +128,7 @@ Sends a new verification email to the user.
 
 Verifies a user's email using a token.
 
-- **URL:** `/verify-email/verify-email/:token`
+- **URL:** `/verify-email/:token`
 - **Method:** `POST`
 - **URL Parameters:** `token` (Required)
 - **Responses:**
