@@ -107,7 +107,9 @@ describe('Auth Controller', () => {
                 password: 'password',
                 passwordConfirmed: 'password',
             }
-            ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue({ id: '1' })
+            ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue({
+                id: '1',
+            })
             await handleSignup(req, res, next)
             expect(res.status).toHaveBeenCalledWith(HttpStatus.CONFLICT)
         })
@@ -121,7 +123,9 @@ describe('Auth Controller', () => {
             }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(null)
             ;(argon2.hash as jest.Mock).mockResolvedValue('hashed')
-            ;(prismaClient.user.create as jest.Mock).mockResolvedValue({ id: '1' })
+            ;(prismaClient.user.create as jest.Mock).mockResolvedValue({
+                id: '1',
+            })
             ;(randomUUID as jest.Mock).mockReturnValue('token')
 
             await handleSignup(req, res, next)
@@ -142,7 +146,11 @@ describe('Auth Controller', () => {
 
         it('should return 401 if password is invalid', async () => {
             req.body = { email: 'test@example.com', password: 'password' }
-            const user = { id: '1', password: 'hashed', emailVerified: new Date() }
+            const user = {
+                id: '1',
+                password: 'hashed',
+                emailVerified: new Date(),
+            }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
             ;(argon2.verify as jest.Mock).mockResolvedValue(false)
 
@@ -152,7 +160,11 @@ describe('Auth Controller', () => {
 
         it('should login and return tokens if credentials are valid', async () => {
             req.body = { email: 'test@example.com', password: 'password' }
-            const user = { id: '1', password: 'hashed', emailVerified: new Date() }
+            const user = {
+                id: '1',
+                password: 'hashed',
+                emailVerified: new Date(),
+            }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
             ;(argon2.verify as jest.Mock).mockResolvedValue(true)
             ;(createAccessToken as jest.Mock).mockReturnValue('access')
@@ -173,7 +185,9 @@ describe('Auth Controller', () => {
 
         it('should clear cookie and return 204 if token exists', async () => {
             req.cookies = { refresh_token: 'token' }
-            ;(prismaClient.refreshToken.findUnique as jest.Mock).mockResolvedValue({ token: 'token' })
+            ;(
+                prismaClient.refreshToken.findUnique as jest.Mock
+            ).mockResolvedValue({ token: 'token' })
 
             await handleLogout(req, res, next)
 
@@ -190,8 +204,12 @@ describe('Auth Controller', () => {
 
         it('should return 403 if token is not found in DB', async () => {
             req.cookies = { refresh_token: 'token' }
-            jest.spyOn(authService, 'getRefreshTokenByToken').mockResolvedValue(null)
-            jest.spyOn(authService, 'verifyToken').mockResolvedValue({ userId: '1' })
+            jest.spyOn(authService, 'getRefreshTokenByToken').mockResolvedValue(
+                null
+            )
+            jest.spyOn(authService, 'verifyToken').mockResolvedValue({
+                userId: '1',
+            })
 
             await handleRefresh(req, res, next)
             expect(res.sendStatus).toHaveBeenCalledWith(HttpStatus.FORBIDDEN)

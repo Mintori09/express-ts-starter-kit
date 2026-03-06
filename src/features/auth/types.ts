@@ -7,4 +7,7 @@ export interface UserSignUpCredentials {
     passwordConfirmed: string
 }
 
-export type UserLoginCredentials = Omit<UserSignUpCredentials, 'username'>
+export interface UserLoginCredentials {
+    email: string
+    password: string
+}

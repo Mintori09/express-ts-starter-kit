@@ -8,7 +8,7 @@ const authRouter = Router()
 
 authRouter.post('/signup', validate(signupSchema), authController.handleSignup)
 
-authRouter.post('/login', validate(loginSchema), authController.handleSignup)
+authRouter.post('/login', validate(loginSchema), authController.handleLogin)
 
 authRouter.post('/logout', authController.handleLogout)
 

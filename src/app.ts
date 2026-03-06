@@ -7,9 +7,9 @@ import cookieParser from 'cookie-parser'
 import compression from 'compression'
 import compressFilter from 'src/utils/compressFilter.util'
 import { errorHandler } from 'src/common/middleware'
-import path from 'node:path'
-import router from 'src/common/routes'
 import { HttpStatus } from './common/constants'
+import router from 'src/common/routes'
+
 const app: Express = express()
 
 app.use(helmet())
@@ -22,11 +22,10 @@ app.use(compression({ filter: compressFilter }))
 
 app.use('/api/v1', router)
 
-app.use((req, res) => {
-    res.status(HttpStatus.BAD_REQUEST)
-
+app.all('*path', (req, res) => {
+    res.status(HttpStatus.NOT_FOUND)
     if (req.accepts('html')) {
-        res.sendFile(path.join(__dirname, 'views', '404.html'))
+        res.json({ error: '404 Not Found' })
     } else if (req.accepts('json')) {
         res.json({ error: '404 Not Found' })
     } else {

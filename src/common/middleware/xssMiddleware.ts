@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express'
-import type { ParsedQs } from 'qs'
 import { SanitizeOptions } from 'src/types/common'
 import { sanitize } from 'src/utils/sanitize.util'
 
@@ -10,11 +9,11 @@ export const xssMiddleware = (options?: SanitizeOptions) => {
         }
 
         if (req.query) {
-            req.query = sanitize(req.query, options) as ParsedQs
+            Object.assign(req.query, sanitize(req.query, options))
         }
 
         if (req.params) {
-            req.params = sanitize(req.params, options) as Record<string, string>
+            Object.assign(req.params, sanitize(req.params, options))
         }
 
         next()
