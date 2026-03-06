@@ -1,7 +1,5 @@
 import { HttpStatus } from 'src/common/constants'
-import {
-    ResetPasswordRequestBodyType,
-} from './types'
+import { ResetPasswordRequestBodyType } from './types'
 import { EmailRequestBody } from 'src/types/common'
 import { TypedRequest } from 'src/types/request'
 import { Response, NextFunction } from 'express'
@@ -24,9 +22,10 @@ export const handleForgotPassword = async (
 
         const user = await authService.getUserByEmail(email)
 
-        if (!user || user.emailVerified) {
+        if (!user || !user.emailVerified) {
             return res.status(HttpStatus.UNAUTHORIZED).json({
-                message: 'Your email is not verified! Please confirm your email!',
+                message:
+                    'Your email is not verified! Please confirm your email!',
             })
         }
 
@@ -57,7 +56,9 @@ export const handleResetPassword = async (
             })
         }
 
-        const resetToken = await forgotPasswordService.getResetToken(token as string)
+        const resetToken = await forgotPasswordService.getResetToken(
+            token as string
+        )
 
         if (!resetToken) {
             return res.status(HttpStatus.NOT_FOUND).json({
@@ -65,7 +66,10 @@ export const handleResetPassword = async (
             })
         }
 
-        await forgotPasswordService.resetUserPassword(resetToken.userId, newPassword)
+        await forgotPasswordService.resetUserPassword(
+            resetToken.userId,
+            newPassword
+        )
 
         return res.status(HttpStatus.OK).json({
             message: 'Password reset successful!',
