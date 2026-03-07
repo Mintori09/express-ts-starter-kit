@@ -38,6 +38,10 @@ export const getUserByEmail = async (email: string) => {
     return prismaClient.user.findUnique({ where: { email } })
 }
 
+export const getUserById = async (userId: string) => {
+    return prismaClient.user.findUnique({ where: { id: userId } })
+}
+
 export const getRefreshTokenByToken = async (token: string) => {
     return prismaClient.refreshToken.findUnique({ where: { token } })
 }

@@ -6,9 +6,11 @@ import { Response, Request, NextFunction } from 'express'
 import {
     clearRefreshTokenCookieConfig,
     config,
+    prismaClient,
     refreshTokenCookieConfig,
 } from 'src/config'
 import * as authService from './auth.service'
+import { Http } from 'winston/lib/winston/transports'
 
 export const handleSignup = async (
     req: TypedRequest<UserSignUpCredentials>,
@@ -209,6 +211,32 @@ export const handleRefresh = async (
         } catch (err) {
             return res.sendStatus(HttpStatus.FORBIDDEN)
         }
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getMe = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.payload?.userId
+
+        if (!userId) {
+            return res.sendStatus(HttpStatus.UNAUTHORIZED)
+        }
+
+        const user = await authService.getUserById(userId)
+
+        if (!user) {
+            return res.sendStatus(HttpStatus.NOT_FOUND)
+        }
+
+        const { password, ...userWithoutPassword } = user
+
+        return res.status(HttpStatus.OK).json(userWithoutPassword)
     } catch (error) {
         next(error)
     }

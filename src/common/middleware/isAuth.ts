@@ -5,8 +5,6 @@ import httpStatus from 'http-status'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import { config } from 'src/config'
 
-// Why does 'jsonwebtoken' not support es6 module support ?????
-// Maybe in future this will be added.....
 // GitHub Issue for this problem: https://github.com/auth0/node-jsonwebtoken/issues/655
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
