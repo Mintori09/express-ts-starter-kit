@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { HttpStatus } from 'src/common/constants/http-status';
+import { Response } from 'express'
+import { HttpStatus } from 'src/common/constants/http-status'
 
 export class ApiResponse {
     static success(
@@ -12,7 +12,7 @@ export class ApiResponse {
             success: true,
             message,
             data,
-        });
+        })
     }
 
     static error(
@@ -25,6 +25,6 @@ export class ApiResponse {
             success: false,
             message,
             errors,
-        });
+        })
     }
 }

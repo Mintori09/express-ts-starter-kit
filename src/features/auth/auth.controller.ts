@@ -13,86 +13,118 @@ import { catchAsync } from 'src/utils/catchAsync'
 import { ApiError } from 'src/utils/ApiError'
 import { ApiResponse } from 'src/utils/ApiResponse'
 
-export const handleSignup = catchAsync(async (
-    req: TypedRequest<UserSignUpCredentials>,
-    res: Response
-) => {
-    const { firstName, lastName, username, email, password, passwordConfirmed } = req.body
+export const handleSignup = catchAsync(
+    async (req: TypedRequest<UserSignUpCredentials>, res: Response) => {
+        const {
+            firstName,
+            lastName,
+            username,
+            email,
+            password,
+            passwordConfirmed,
+        } = req.body
 
-    if (!firstName || !lastName || !username || !email || !password || !passwordConfirmed) {
-        throw new ApiError(HttpStatus.BAD_REQUEST, 'First name, last name, username, email and password are required!')
-    }
-
-    if (password !== passwordConfirmed) {
-        throw new ApiError(HttpStatus.BAD_REQUEST, 'Passwords do not match!')
-    }
-
-    await authService.createUser(req.body as UserSignUpCredentials)
-
-    return ApiResponse.success(res, null, 'New user created', HttpStatus.CREATED)
-})
-
-export const handleLogin = catchAsync(async (
-    req: TypedRequest<UserLoginCredentials>,
-    res: Response
-) => {
-    const cookies = req.cookies
-    const { email, password } = req.body
-
-    if (!email || !password) {
-        throw new ApiError(HttpStatus.BAD_REQUEST, 'Email and password are required!')
-    }
-
-    const user = await authService.getUserByEmail(email)
-
-    if (!user) {
-        throw new ApiError(HttpStatus.UNAUTHORIZED, 'Invalid email or password')
-    }
-
-    if (!user.emailVerified) {
-        throw new ApiError(HttpStatus.UNAUTHORIZED, 'Your email is not verified! Please confirm your email')
-    }
-
-    const isPasswordValid = await argon2.verify(user.password, password)
-
-    if (!isPasswordValid) {
-        throw new ApiError(HttpStatus.UNAUTHORIZED, 'Invalid email or password')
-    }
-
-    if (cookies?.[config.jwt.refresh_token.cookie_name]) {
-        const refreshToken = cookies[config.jwt.refresh_token.cookie_name]
-        const checkRefreshToken =
-            await authService.getRefreshTokenByToken(refreshToken)
-
-        if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
-            await authService.deleteAllUserRefreshTokens(user.id)
-        } else {
-            await authService.deleteRefreshToken(refreshToken)
+        if (
+            !firstName ||
+            !lastName ||
+            !username ||
+            !email ||
+            !password ||
+            !passwordConfirmed
+        ) {
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                'First name, last name, username, email and password are required!'
+            )
         }
 
-        res.clearCookie(
-            config.jwt.refresh_token.cookie_name,
-            clearRefreshTokenCookieConfig
+        if (password !== passwordConfirmed) {
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                'Passwords do not match!'
+            )
+        }
+
+        await authService.createUser(req.body as UserSignUpCredentials)
+
+        return ApiResponse.success(
+            res,
+            null,
+            'New user created',
+            HttpStatus.CREATED
         )
     }
+)
 
-    const { accessToken, refreshToken } = await authService.createSession(
-        user.id
-    )
+export const handleLogin = catchAsync(
+    async (req: TypedRequest<UserLoginCredentials>, res: Response) => {
+        const cookies = req.cookies
+        const { email, password } = req.body
 
-    res.cookie(
-        config.jwt.refresh_token.cookie_name,
-        refreshToken,
-        refreshTokenCookieConfig
-    )
+        if (!email || !password) {
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                'Email and password are required!'
+            )
+        }
 
-    return ApiResponse.success(res, { accessToken })
-})
+        const user = await authService.getUserByEmail(email)
 
-export const handleLogout = catchAsync(async (
-    req: Request,
-    res: Response
-) => {
+        if (!user) {
+            throw new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                'Invalid email or password'
+            )
+        }
+
+        if (!user.emailVerified) {
+            throw new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                'Your email is not verified! Please confirm your email'
+            )
+        }
+
+        const isPasswordValid = await argon2.verify(user.password, password)
+
+        if (!isPasswordValid) {
+            throw new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                'Invalid email or password'
+            )
+        }
+
+        if (cookies?.[config.jwt.refresh_token.cookie_name]) {
+            const refreshToken = cookies[config.jwt.refresh_token.cookie_name]
+            const checkRefreshToken =
+                await authService.getRefreshTokenByToken(refreshToken)
+
+            if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
+                await authService.deleteAllUserRefreshTokens(user.id)
+            } else {
+                await authService.deleteRefreshToken(refreshToken)
+            }
+
+            res.clearCookie(
+                config.jwt.refresh_token.cookie_name,
+                clearRefreshTokenCookieConfig
+            )
+        }
+
+        const { accessToken, refreshToken } = await authService.createSession(
+            user.id
+        )
+
+        res.cookie(
+            config.jwt.refresh_token.cookie_name,
+            refreshToken,
+            refreshTokenCookieConfig
+        )
+
+        return ApiResponse.success(res, { accessToken })
+    }
+)
+
+export const handleLogout = catchAsync(async (req: Request, res: Response) => {
     const cookies = req.cookies
 
     if (!cookies[config.jwt.refresh_token.cookie_name]) {
@@ -120,14 +152,12 @@ export const handleLogout = catchAsync(async (
     return res.sendStatus(HttpStatus.NO_CONTENT)
 })
 
-export const handleRefresh = catchAsync(async (
-    req: Request,
-    res: Response
-) => {
+export const handleRefresh = catchAsync(async (req: Request, res: Response) => {
     const refreshToken: string | undefined =
         req.cookies[config.jwt.refresh_token.cookie_name]
 
-    if (!refreshToken) throw new ApiError(HttpStatus.UNAUTHORIZED, 'Refresh token not found')
+    if (!refreshToken)
+        throw new ApiError(HttpStatus.UNAUTHORIZED, 'Refresh token not found')
 
     res.clearCookie(
         config.jwt.refresh_token.cookie_name,
@@ -177,10 +207,7 @@ export const handleRefresh = catchAsync(async (
     }
 })
 
-export const getMe = catchAsync(async (
-    req: Request,
-    res: Response
-) => {
+export const getMe = catchAsync(async (req: Request, res: Response) => {
     const userId = req.payload?.userId
 
     if (!userId) {
