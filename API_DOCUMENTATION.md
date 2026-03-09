@@ -15,6 +15,21 @@ All API responses follow a consistent structure:
 }
 ```
 
+### Paginated Success Response
+```json
+{
+    "success": true,
+    "message": "Success message",
+    "data": [...],
+    "meta": {
+        "total": 100,
+        "page": 1,
+        "limit": 10,
+        "totalPages": 10
+    }
+}
+```
+
 ### Error Response
 ```json
 {
@@ -23,6 +38,21 @@ All API responses follow a consistent structure:
     "stack": "..." // Only in development mode
 }
 ```
+
+## Standard Query Parameters
+
+For endpoints that support listing multiple items, the following query parameters are supported:
+
+| Parameter | Type | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `page` | `number` | The page number to retrieve | `1` |
+| `limit` | `number` | Number of items per page | `10` |
+| `sortBy` | `string` | Field name to sort by | `createdAt` |
+| `sortOrder` | `string` | Sort direction (`asc` or `desc`) | `desc` |
+| `search` | `string` | Search query string | - |
+
+**Example:**
+`GET /api/v1/users?page=2&limit=5&sortBy=firstName&sortOrder=asc&search=john`
 
 ## 1. Auth Feature
 
