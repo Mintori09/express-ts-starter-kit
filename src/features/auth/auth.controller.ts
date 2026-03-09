@@ -2,7 +2,7 @@ import { HttpStatus } from 'src/common/constants'
 import { UserLoginCredentials, UserSignUpCredentials } from './types'
 import { TypedRequest } from 'src/types/request'
 import * as argon2 from 'argon2'
-import { Response, Request, NextFunction } from 'express'
+import { Response, Request } from 'express'
 import {
     clearRefreshTokenCookieConfig,
     config,
