@@ -1,6 +1,8 @@
 import { Omit } from 'utility-types'
 
 export interface UserSignUpCredentials {
+    firstName: string
+    lastName: string
     username: string
     email: string
     password: string

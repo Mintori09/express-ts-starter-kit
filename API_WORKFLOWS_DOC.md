@@ -1,10 +1,36 @@
 # Express TS Starter Kit - Documentation
 
-This document outlines the database architecture and the logic workflows for the Authentication, Email Verification, and Password Reset features.
+This document outlines the architecture, error handling standards, and logic workflows for the features.
 
 ---
 
-## 1. Database Models (Prisma)
+## 1. Layered Architecture
+
+The project follows a **Controller-Service-Repository** pattern:
+
+1. **Controllers**:
+   - Handle incoming HTTP requests.
+   - Wrapped in `catchAsync` to automate error propagation to the global error handler.
+   - Use `ApiResponse` for consistent JSON responses.
+2. **Services**:
+   - Contain the core business logic.
+   - Agnostic of the HTTP layer (no `req`/`res` objects).
+   - Throw `ApiError` for operational failures.
+3. **Repositories**:
+   - Abstract database operations (Prisma).
+   - Provide a clean interface for data persistence.
+
+---
+
+## 2. Error Handling & Standardization
+
+- **ApiError**: A custom class for operational errors (e.g., 404, 400).
+- **Global Error Handler**: Catches all errors, logs them using `winston`, and returns a standardized JSON response.
+- **ApiResponse**: Utility to ensure all success responses have a consistent `{ success, message, data }` structure.
+
+---
+
+## 3. Database Models (Prisma)
 
 The system uses a relational database (MySQL/MariaDB) with the following models:
 
@@ -18,15 +44,15 @@ The system uses a relational database (MySQL/MariaDB) with the following models:
 
 ---
 
-## 2. API Workflows
+## 4. API Workflows
 
 ### A. Authentication Feature (`src/features/auth`)
 
 #### 1. Signup (`POST /signup`)
 
-1. **Validation:** Checks for required fields (`username`, `email`, `password`, `passwordConfirmed`) and ensures passwords match.
+1. **Validation:** Checks for required fields (`firstName`, `lastName`, `username`, `email`, `password`, `passwordConfirmed`) and ensures passwords match.
 2. **Conflict Check:** Verifies if the email is already registered.
-3. **User Creation:** Hashes the password using Argon2 and saves the `User` record.
+3. **User Creation:** Hashes the password using Argon2 and saves the `User` record (including first and last names).
 4. **Email Verification Trigger:** Generates a `randomUUID` token, saves it in `EmailVerificationToken`, and sends a verification email.
 
 #### 2. Login (`POST /login`)

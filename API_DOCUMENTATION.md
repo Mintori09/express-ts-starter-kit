@@ -2,6 +2,28 @@
 
 Base URL: `/api/v1`
 
+## Standardized Response Format
+
+All API responses follow a consistent structure:
+
+### Success Response
+```json
+{
+    "success": true,
+    "message": "Success message",
+    "data": { ... }
+}
+```
+
+### Error Response
+```json
+{
+    "success": false,
+    "message": "Error message",
+    "stack": "..." // Only in development mode
+}
+```
+
 ## 1. Auth Feature
 
 ### Signup
@@ -13,6 +35,8 @@ Creates a new user account.
 - **Request Body:**
     ```json
     {
+        "firstName": "Example",
+        "lastName": "User",
         "username": "example_user",
         "email": "user@example.com",
         "password": "password123",
@@ -38,8 +62,19 @@ Authenticates a user and returns an access token.
     }
     ```
 - **Responses:**
-    - `200 OK`: Returns `accessToken` and sets `refresh_token` cookie.
+    - `200 OK`: Returns `accessToken` in `data` and sets `refresh_token` cookie.
     - `401 Unauthorized`: Invalid credentials or email not verified.
+
+### Get Me
+
+Returns the currently authenticated user's information.
+
+- **URL:** `/auth/me`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <access_token>`
+- **Responses:**
+    - `200 OK`: Returns user object in `data`.
+    - `401 Unauthorized`: Not authenticated.
 
 ### Logout
 

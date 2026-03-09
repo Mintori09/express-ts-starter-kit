@@ -66,7 +66,7 @@ describe('Auth Controller', () => {
 
     describe('handleSignup', () => {
         it('should call next with ApiError if required fields are missing', async () => {
-            req.body = { username: 'test' }
+            req.body = { firstName: 'John', lastName: 'Doe', username: 'test' }
             await handleSignup(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
             expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.BAD_REQUEST)
@@ -74,6 +74,8 @@ describe('Auth Controller', () => {
 
         it('should call next with ApiError if passwords do not match', async () => {
             req.body = {
+                firstName: 'John',
+                lastName: 'Doe',
                 username: 'test',
                 email: 'test@example.com',
                 password: 'password',
@@ -86,6 +88,8 @@ describe('Auth Controller', () => {
 
         it('should call next with ApiError if user already exists', async () => {
             req.body = {
+                firstName: 'John',
+                lastName: 'Doe',
                 username: 'test',
                 email: 'test@example.com',
                 password: 'password',
@@ -100,6 +104,8 @@ describe('Auth Controller', () => {
 
         it('should create a user and return 201', async () => {
             req.body = {
+                firstName: 'John',
+                lastName: 'Doe',
                 username: 'test',
                 email: 'test@example.com',
                 password: 'password',

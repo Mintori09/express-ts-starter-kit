@@ -4,6 +4,8 @@ import { UserSignUpCredentials } from './types';
 export const createUser = async (data: UserSignUpCredentials, hashedPassword: string) => {
     return prismaClient.user.create({
         data: {
+            firstName: data.firstName,
+            lastName: data.lastName,
             name: data.username,
             email: data.email,
             password: hashedPassword,

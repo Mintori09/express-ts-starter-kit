@@ -17,10 +17,10 @@ export const handleSignup = catchAsync(async (
     req: TypedRequest<UserSignUpCredentials>,
     res: Response
 ) => {
-    const { username, email, password, passwordConfirmed } = req.body
+    const { firstName, lastName, username, email, password, passwordConfirmed } = req.body
 
-    if (!username || !email || !password || !passwordConfirmed) {
-        throw new ApiError(HttpStatus.BAD_REQUEST, 'Username, email and password are required!')
+    if (!firstName || !lastName || !username || !email || !password || !passwordConfirmed) {
+        throw new ApiError(HttpStatus.BAD_REQUEST, 'First name, last name, username, email and password are required!')
     }
 
     if (password !== passwordConfirmed) {

@@ -7,8 +7,13 @@ The **Express TypeScript Starter Kit** is a production-ready boilerplate designe
 ## Features
 
 - **TypeScript**: Full type safety across the application.
-- **Feature-Based Architecture**: Modular design for better scalability and organization.
-- **Service Layer Pattern**: Decoupled business logic from controllers.
+- **Layered Architecture (Modular)**: 
+    - **Controllers**: Handle request/response logic using `catchAsync`.
+    - **Services**: Contain core business logic, agnostic of HTTP layer.
+    - **Repositories**: Abstract database operations (Prisma) from services.
+- **Centralized Error Handling**: Custom `ApiError` class for operational errors and a global error middleware.
+- **Standardized Responses**: Consistent JSON structure using the `ApiResponse` utility.
+- **Winston Logging**: Production-grade logging system with file transports.
 - **Prisma ORM**: Modern database toolkit for type-safe database access.
 - **JWT Authentication**: Secure authentication using Access and Refresh tokens (with token reuse detection).
 - **Zod Validation**: Robust request validation with automatic type inference.
@@ -63,10 +68,11 @@ The **Express TypeScript Starter Kit** is a production-ready boilerplate designe
 
 1. Create a new folder in `src/features/`.
 2. Define the domain types in `types.ts`.
-3. Implement the business logic in `*.service.ts`.
-4. Handle requests in `*.controller.ts`.
-5. Register routes in `*.route.ts` and add them to `src/common/routes.ts`.
-6. Add unit tests in a `tests/` subdirectory.
+3. Abstract DB operations in `*.repository.ts`.
+4. Implement the business logic in `*.service.ts`.
+5. Handle requests in `*.controller.ts` using `catchAsync` and `ApiResponse`.
+6. Register routes in `*.route.ts` and add them to `src/common/routes.ts`.
+7. Add unit tests in a `tests/` subdirectory.
 
 ### Running Tests
 
@@ -113,6 +119,8 @@ The application uses Zod to validate environment variables defined in `.env`.
 
 ```json
 {
+    "firstName": "John",
+    "lastName": "Doe",
     "username": "johndoe",
     "email": "john@example.com",
     "password": "securePassword123",
