@@ -111,7 +111,8 @@ export const handleLogin = catchAsync(
         }
 
         const { accessToken, refreshToken } = await authService.createSession(
-            user.id
+            user.id,
+            user.role
         )
 
         res.cookie(
@@ -182,27 +183,33 @@ export const handleRefresh = catchAsync(async (req: Request, res: Response) => {
 
     await authService.deleteRefreshToken(refreshToken)
 
-    try {
-        const payload = await authService.verifyToken(
-            refreshToken,
-            config.jwt.refresh_token.secret
-        )
+        try {
+            const payload = await authService.verifyToken(
+                refreshToken,
+                config.jwt.refresh_token.secret
+            )
 
-        if (foundRefreshToken.userId !== payload.userId) {
-            throw new ApiError(HttpStatus.FORBIDDEN, 'User mismatch')
-        }
+            if (foundRefreshToken.userId !== payload.userId) {
+                throw new ApiError(HttpStatus.FORBIDDEN, 'User mismatch')
+            }
 
-        const { accessToken, refreshToken: newRefreshToken } =
-            await authService.createSession(payload.userId)
+            const user = await authService.getUserById(payload.userId)
 
-        res.cookie(
-            config.jwt.refresh_token.cookie_name,
-            newRefreshToken,
-            refreshTokenCookieConfig
-        )
+            if (!user) {
+                throw new ApiError(HttpStatus.FORBIDDEN, 'User not found')
+            }
 
-        return ApiResponse.success(res, { accessToken })
-    } catch (err) {
+            const { accessToken, refreshToken: newRefreshToken } =
+                await authService.createSession(payload.userId, user.role)
+
+            res.cookie(
+                config.jwt.refresh_token.cookie_name,
+                newRefreshToken,
+                refreshTokenCookieConfig
+            )
+
+            return ApiResponse.success(res, { accessToken })
+        } catch (err) {
         throw new ApiError(HttpStatus.FORBIDDEN, 'Invalid refresh token')
     }
 })

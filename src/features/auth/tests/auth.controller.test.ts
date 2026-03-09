@@ -9,10 +9,6 @@ import { config } from 'src/config'
 import * as argon2 from 'argon2'
 import { Response, Request, NextFunction } from 'express'
 import { randomUUID } from 'node:crypto'
-import {
-    createAccessToken,
-    createRefreshToken,
-} from 'src/utils/generateTokens.util'
 import * as authService from '../auth.service'
 import { ApiError } from 'src/utils/ApiError'
 
@@ -139,6 +135,7 @@ describe('Auth Controller', () => {
                 id: '1',
                 password: 'hashed',
                 emailVerified: new Date(),
+                role: 'USER',
             }
             ;(authService.getUserByEmail as jest.Mock).mockResolvedValue(user)
             ;(argon2.verify as jest.Mock).mockResolvedValue(false)
@@ -154,6 +151,7 @@ describe('Auth Controller', () => {
                 id: '1',
                 password: 'hashed',
                 emailVerified: new Date(),
+                role: 'USER',
             }
             ;(authService.getUserByEmail as jest.Mock).mockResolvedValue(user)
             ;(argon2.verify as jest.Mock).mockResolvedValue(true)
@@ -204,6 +202,28 @@ describe('Auth Controller', () => {
             await handleRefresh(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
             expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.FORBIDDEN)
+        })
+
+        it('should create new session if refresh token is valid', async () => {
+            req.cookies = { refresh_token: 'token' }
+            const payload = { userId: '1' }
+            const user = { id: '1', role: 'USER' }
+            
+            ;(authService.getRefreshTokenByToken as jest.Mock).mockResolvedValue({ token: 'token', userId: '1' })
+            ;(authService.verifyToken as jest.Mock).mockResolvedValue(payload)
+            ;(authService.getUserById as jest.Mock).mockResolvedValue(user)
+            ;(authService.createSession as jest.Mock).mockResolvedValue({
+                accessToken: 'new_access',
+                refreshToken: 'new_refresh'
+            })
+
+            await handleRefresh(req, res, next)
+
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                data: { accessToken: 'new_access' }
+            }))
+            expect(res.cookie).toHaveBeenCalled()
         })
     })
 })

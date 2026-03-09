@@ -27,6 +27,7 @@ The project follows a **Controller-Service-Repository** pattern:
 - **ApiError**: A custom class for operational errors (e.g., 404, 400).
 - **Global Error Handler**: Catches all errors, logs them using `winston`, and returns a standardized JSON response.
 - **ApiResponse**: Utility to ensure all success responses have a consistent `{ success, message, data }` structure.
+- **Paginate**: A generic utility for Prisma that handles `page`, `limit`, `sortBy`, `sortOrder`, and `search` parameters.
 
 ---
 

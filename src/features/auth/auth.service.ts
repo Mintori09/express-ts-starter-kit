@@ -23,7 +23,11 @@ export const createUser = async (data: UserSignUpCredentials) => {
     const token = randomUUID()
     const expiresAt = new Date(Date.now() + 3600000)
 
-    await authRepository.createEmailVerificationToken(newUser.id, token, expiresAt)
+    await authRepository.createEmailVerificationToken(
+        newUser.id,
+        token,
+        expiresAt
+    )
 
     sendVerifyEmail(data.email, token)
     return newUser
@@ -49,8 +53,8 @@ export const deleteAllUserRefreshTokens = async (userId: string) => {
     return authRepository.deleteAllUserRefreshTokens(userId)
 }
 
-export const createSession = async (userId: string) => {
-    const accessToken = createAccessToken(userId)
+export const createSession = async (userId: string, role: string) => {
+    const accessToken = createAccessToken(userId, role)
     const refreshToken = createRefreshToken(userId)
 
     await authRepository.createRefreshToken(userId, refreshToken)
@@ -61,7 +65,10 @@ export const createSession = async (userId: string) => {
 export const verifyToken = (token: string, secret: string): Promise<any> => {
     return new Promise((resolve, reject) => {
         ;(jwt as any).verify(token, secret, (err: any, payload: any) => {
-            if (err) return reject(new ApiError(HttpStatus.FORBIDDEN, 'Invalid token'))
+            if (err)
+                return reject(
+                    new ApiError(HttpStatus.FORBIDDEN, 'Invalid token')
+                )
             resolve(payload)
         })
     })
