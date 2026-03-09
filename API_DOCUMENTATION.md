@@ -129,8 +129,9 @@ Sends a new verification email to the user.
 Verifies a user's email using a token.
 
 - **URL:** `/verify-email/:token`
-- **Method:** `POST`
+- **Method:** `GET`
 - **URL Parameters:** `token` (Required)
 - **Responses:**
-    - `200 OK`: Email verified successfully.
-    - `404 Not Found`: Token missing, invalid, or expired.
+    - `200 OK`: Returns an HTML success page.
+    - `400 Bad Request`: Returns an HTML error page (Invalid link).
+    - `410 Gone`: Returns an HTML error page (Token expired).

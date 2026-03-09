@@ -15,7 +15,7 @@ const corsConfig: Readonly<CorsOptions> = {
                 | Array<boolean | string | RegExp>
         ) => void
     ) {
-        if (!origin || whiteList.some((val) => origin.match(val))) {
+        if (!origin || whiteList.includes('*') || whiteList.includes(origin)) {
             callback(null, true)
         } else {
             callback(new Error('Not allowed by CORS'))

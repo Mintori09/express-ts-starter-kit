@@ -78,19 +78,32 @@ pnpm test
 pnpm exec jest --watch
 ```
 
+### Testing SMTP
+
+You can verify your SMTP configuration by running the built-in test script:
+
+```bash
+npx tsx src/utils/test-smtp.ts
+```
+
+This script will attempt to verify the connection and send a test email to the `EMAIL_FROM` address specified in your `.env`.
+
 ## Configuration
 
 The application uses Zod to validate environment variables defined in `.env`.
 
-| Variable               | Description                                 | Default       |
-| :--------------------- | :------------------------------------------ | :------------ |
-| `NODE_ENV`             | Environment (development, test, production) | `development` |
-| `PORT`                 | Server listening port                       | `4000`        |
-| `DATABASE_URL`         | Prisma database connection string           | `mysql://...` |
-| `ACCESS_TOKEN_SECRET`  | Secret for Access JWT (min 8 chars)         | -             |
-| `REFRESH_TOKEN_SECRET` | Secret for Refresh JWT (min 8 chars)        | -             |
-| `SMTP_HOST`            | SMTP server for emails                      | `localhost`   |
-| `SMTP_PORT`            | SMTP server port                            | `587`         |
+| Variable               | Description                                           | Default       |
+| :--------------------- | :---------------------------------------------------- | :------------ |
+| `NODE_ENV`             | Environment (development, test, production)           | `development` |
+| `PORT`                 | Server listening port                                 | `4000`        |
+| `DATABASE_URL`         | Prisma database connection string                     | `mysql://...` |
+| `ACCESS_TOKEN_SECRET`  | Secret for Access JWT (min 8 chars)                   | -             |
+| `REFRESH_TOKEN_SECRET` | Secret for Refresh JWT (min 8 chars)                  | -             |
+| `SMTP_HOST`            | SMTP server for emails                                | `localhost`   |
+| `SMTP_PORT`            | SMTP server port (465 for SSL/TLS, 587 for STARTTLS)  | `587`         |
+| `SMTP_USERNAME`        | SMTP authentication username                          | `test_user`   |
+| `SMTP_PASSWORD`        | SMTP authentication password                          | -             |
+| `EMAIL_FROM`           | Sender address for outgoing emails                    | -             |
 
 ## Examples
 

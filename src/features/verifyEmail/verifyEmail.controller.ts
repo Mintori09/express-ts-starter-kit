@@ -60,23 +60,75 @@ export const handleVerifyEmail = async (
 ) => {
     try {
         const { token } = req.params as { token: string }
+        const loginUrl = `${config.cors.cors_origin}/login`
 
-        if (!token) return res.sendStatus(HttpStatus.NOT_FOUND)
+        const renderHtmlResponse = (
+            title: string,
+            message: string,
+            isSuccess: boolean
+        ) => `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f7f6; }
+                    .container { text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+                    h1 { color: ${isSuccess ? '#28a745' : '#dc3545'}; }
+                    p { color: #666; margin-bottom: 30px; }
+                    .btn { background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>${isSuccess ? 'Success!' : 'Oops!'}</h1>
+                    <p>${message}</p>
+                    <a href="${loginUrl}" class="btn">Go to Login</a>
+                </div>
+            </body>
+            </html>
+        `
+
+        if (!token) {
+            return res
+                .status(HttpStatus.BAD_REQUEST)
+                .send(
+                    renderHtmlResponse(
+                        'Verification Failed',
+                        'Invalid verification link.',
+                        false
+                    )
+                )
+        }
 
         const verificationToken =
             await verifyEmailService.getVerificationToken(token)
 
         if (!verificationToken || verificationToken.expiresAt < new Date()) {
-            return res.status(HttpStatus.NOT_FOUND).json({
-                error: 'Invalid or expired token!',
-            })
+            return res
+                .status(HttpStatus.GONE)
+                .send(
+                    renderHtmlResponse(
+                        'Link Expired',
+                        'This verification link is invalid or has expired.',
+                        false
+                    )
+                )
         }
 
         await verifyEmailService.verifyUserEmail(verificationToken.userId)
 
-        return res.status(HttpStatus.OK).json({
-            message: 'Email verification succesfully!',
-        })
+        return res
+            .status(HttpStatus.OK)
+            .send(
+                renderHtmlResponse(
+                    'Email Verified',
+                    'Your email has been successfully verified. You can now log in.',
+                    true
+                )
+            )
     } catch (error) {
         next(error)
     }

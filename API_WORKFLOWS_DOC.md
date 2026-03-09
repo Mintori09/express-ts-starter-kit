@@ -61,11 +61,12 @@ The system uses a relational database (MySQL/MariaDB) with the following models:
 2. **Rate Limiting (Token based):** Checks if a valid, unexpired token already exists to prevent spam.
 3. **Generation:** Creates a new `EmailVerificationToken` and dispatches the email.
 
-#### 2. Verify Email (`POST /verify-email/:token`)
+#### 2. Verify Email (`GET /verify-email/:token`)
 
 1. **Token Validation:** Checks if the token exists in the DB and has not expired.
 2. **Activation:** Updates the `User` record by setting `emailVerified` to the current timestamp.
 3. **Cleanup:** Deletes all verification tokens associated with the user.
+4. **UI Response:** Returns a polished HTML success or failure landing page with a "Go to Login" button.
 
 ---
 
