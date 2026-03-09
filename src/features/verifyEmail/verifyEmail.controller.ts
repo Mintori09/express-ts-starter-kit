@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { EmailRequestBody } from 'src/types/common'
 import { TypedRequest } from 'src/types/request'
 import { HttpStatus } from 'src/common/constants'
+import { config } from 'src/config'
 import * as authService from 'src/features/auth/auth.service'
 import * as verifyEmailService from './verifyEmail.service'
 

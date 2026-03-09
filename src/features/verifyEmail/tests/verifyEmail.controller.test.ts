@@ -24,6 +24,9 @@ jest.mock('src/config', () => ({
     },
     config: {
         node_env: 'test',
+        cors: {
+            cors_origin: 'http://localhost:3000',
+        },
     },
 }))
 
@@ -80,14 +83,14 @@ describe('Verify Email Controller', () => {
     })
 
     describe('handleVerifyEmail', () => {
-        it('should return 404 if token is invalid or expired', async () => {
+        it('should return 410 if token is invalid or expired', async () => {
             req.params = { token: 'token' }
             ;(
                 prismaClient.emailVerificationToken.findUnique as jest.Mock
             ).mockResolvedValue(null)
 
             await handleVerifyEmail(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+            expect(res.status).toHaveBeenCalledWith(HttpStatus.GONE)
         })
 
         it('should verify email and return 200', async () => {

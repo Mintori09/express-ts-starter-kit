@@ -70,7 +70,7 @@ describe('Forgot Password Controller', () => {
 
         it('should send reset email and return 200', async () => {
             req.body = { email: 'test@example.com' }
-            const user = { id: '1', emailVerified: null }
+            const user = { id: '1', emailVerified: true }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
             ;(randomUUID as jest.Mock).mockReturnValue('token')
 
