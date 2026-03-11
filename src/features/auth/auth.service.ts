@@ -5,7 +5,7 @@ import {
     createAccessToken,
     createRefreshToken,
 } from 'src/utils/generateTokens.util'
-import { UserSignUpCredentials } from './types'
+import { ChangePasswordData, UserSignUpCredentials } from './types'
 import * as jwt from 'jsonwebtoken'
 import * as authRepository from './auth.repository'
 import { ApiError } from 'src/utils/ApiError'
@@ -31,6 +31,24 @@ export const createUser = async (data: UserSignUpCredentials) => {
 
     sendVerifyEmail(data.email, token)
     return newUser
+}
+
+export const changePassword = async (
+    userId: string,
+    data: ChangePasswordData
+) => {
+    const user = await authRepository.getUserById(userId)
+    if (!user) {
+        throw new ApiError(HttpStatus.NOT_FOUND, 'User not found')
+    }
+
+    const isPasswordValid = await argon2.verify(user.password, data.oldPassword)
+    if (!isPasswordValid) {
+        throw new ApiError(HttpStatus.UNAUTHORIZED, 'Invalid old password')
+    }
+
+    const hashedPassword = await argon2.hash(data.newPassword)
+    await authRepository.updatePassword(userId, hashedPassword)
 }
 
 export const getUserByEmail = async (email: string) => {

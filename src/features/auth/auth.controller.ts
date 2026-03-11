@@ -1,5 +1,9 @@
 import { HttpStatus } from 'src/common/constants'
-import { UserLoginCredentials, UserSignUpCredentials } from './types'
+import {
+    ChangePasswordData,
+    UserLoginCredentials,
+    UserSignUpCredentials,
+} from './types'
 import { TypedRequest } from 'src/types/request'
 import * as argon2 from 'argon2'
 import { Response, Request } from 'express'
@@ -183,33 +187,33 @@ export const handleRefresh = catchAsync(async (req: Request, res: Response) => {
 
     await authService.deleteRefreshToken(refreshToken)
 
-        try {
-            const payload = await authService.verifyToken(
-                refreshToken,
-                config.jwt.refresh_token.secret
-            )
+    try {
+        const payload = await authService.verifyToken(
+            refreshToken,
+            config.jwt.refresh_token.secret
+        )
 
-            if (foundRefreshToken.userId !== payload.userId) {
-                throw new ApiError(HttpStatus.FORBIDDEN, 'User mismatch')
-            }
+        if (foundRefreshToken.userId !== payload.userId) {
+            throw new ApiError(HttpStatus.FORBIDDEN, 'User mismatch')
+        }
 
-            const user = await authService.getUserById(payload.userId)
+        const user = await authService.getUserById(payload.userId)
 
-            if (!user) {
-                throw new ApiError(HttpStatus.FORBIDDEN, 'User not found')
-            }
+        if (!user) {
+            throw new ApiError(HttpStatus.FORBIDDEN, 'User not found')
+        }
 
-            const { accessToken, refreshToken: newRefreshToken } =
-                await authService.createSession(payload.userId, user.role)
+        const { accessToken, refreshToken: newRefreshToken } =
+            await authService.createSession(payload.userId, user.role)
 
-            res.cookie(
-                config.jwt.refresh_token.cookie_name,
-                newRefreshToken,
-                refreshTokenCookieConfig
-            )
+        res.cookie(
+            config.jwt.refresh_token.cookie_name,
+            newRefreshToken,
+            refreshTokenCookieConfig
+        )
 
-            return ApiResponse.success(res, { accessToken })
-        } catch (err) {
+        return ApiResponse.success(res, { accessToken })
+    } catch (err) {
         throw new ApiError(HttpStatus.FORBIDDEN, 'Invalid refresh token')
     }
 })
@@ -231,3 +235,20 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
 
     return ApiResponse.success(res, userWithoutPassword)
 })
+
+export const handleChangePassword = catchAsync(
+    async (req: TypedRequest<ChangePasswordData>, res: Response) => {
+        const userId = req.payload?.userId
+
+        if (!userId) {
+            throw new ApiError(HttpStatus.UNAUTHORIZED, 'Unauthorized')
+        }
+
+        await authService.changePassword(
+            userId,
+            req.body as unknown as ChangePasswordData
+        )
+
+        return ApiResponse.success(res, null, 'Password changed successfully')
+    }
+)

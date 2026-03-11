@@ -1,6 +1,10 @@
 import { Router } from 'express'
 import validate from 'src/common/middleware/validate'
-import { loginSchema, signupSchema } from './auth.validation'
+import {
+    changePasswordSchema,
+    loginSchema,
+    signupSchema,
+} from './auth.validation'
 
 import * as authController from './auth.controller'
 import isAuth from 'src/common/middleware/isAuth'
@@ -134,5 +138,48 @@ authRouter.post('/refresh', authController.handleRefresh)
  *         description: Unauthorized
  */
 authRouter.get('/me', isAuth, authController.getMe)
+
+/**
+ * @openapi
+ * /auth/change-password:
+ *   patch:
+ *     summary: Change password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *               - newPasswordConfirm
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 format: password
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *               newPasswordConfirm:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Bad Request
+ *       401:
+ *         description: Unauthorized
+ */
+authRouter.patch(
+    '/change-password',
+    isAuth,
+    validate(changePasswordSchema),
+    authController.handleChangePassword
+)
 
 export default authRouter

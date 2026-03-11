@@ -4,6 +4,7 @@ import {
     handleLogin,
     handleLogout,
     handleRefresh,
+    handleChangePassword,
 } from 'src/features/auth/auth.controller'
 import { config } from 'src/config'
 import * as argon2 from 'argon2'
@@ -65,7 +66,9 @@ describe('Auth Controller', () => {
             req.body = { firstName: 'John', lastName: 'Doe', username: 'test' }
             await handleSignup(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.BAD_REQUEST)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.BAD_REQUEST
+            )
         })
 
         it('should call next with ApiError if passwords do not match', async () => {
@@ -79,7 +82,9 @@ describe('Auth Controller', () => {
             }
             await handleSignup(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.BAD_REQUEST)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.BAD_REQUEST
+            )
         })
 
         it('should call next with ApiError if user already exists', async () => {
@@ -91,11 +96,15 @@ describe('Auth Controller', () => {
                 password: 'password',
                 passwordConfirmed: 'password',
             }
-            ;(authService.createUser as jest.Mock).mockRejectedValue(new ApiError(HttpStatus.CONFLICT, 'Email already exists'))
-            
+            ;(authService.createUser as jest.Mock).mockRejectedValue(
+                new ApiError(HttpStatus.CONFLICT, 'Email already exists')
+            )
+
             await handleSignup(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.CONFLICT)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.CONFLICT
+            )
         })
 
         it('should create a user and return 201', async () => {
@@ -107,15 +116,19 @@ describe('Auth Controller', () => {
                 password: 'password',
                 passwordConfirmed: 'password',
             }
-            ;(authService.createUser as jest.Mock).mockResolvedValue({ id: '1' })
+            ;(authService.createUser as jest.Mock).mockResolvedValue({
+                id: '1',
+            })
 
             await handleSignup(req, res, next)
 
             expect(res.status).toHaveBeenCalledWith(HttpStatus.CREATED)
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                message: 'New user created'
-            }))
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    message: 'New user created',
+                })
+            )
         })
     })
 
@@ -126,7 +139,9 @@ describe('Auth Controller', () => {
 
             await handleLogin(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.UNAUTHORIZED)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.UNAUTHORIZED
+            )
         })
 
         it('should call next with ApiError if password is invalid', async () => {
@@ -142,7 +157,9 @@ describe('Auth Controller', () => {
 
             await handleLogin(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.UNAUTHORIZED)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.UNAUTHORIZED
+            )
         })
 
         it('should login and return tokens if credentials are valid', async () => {
@@ -157,15 +174,17 @@ describe('Auth Controller', () => {
             ;(argon2.verify as jest.Mock).mockResolvedValue(true)
             ;(authService.createSession as jest.Mock).mockResolvedValue({
                 accessToken: 'access',
-                refreshToken: 'refresh'
+                refreshToken: 'refresh',
             })
 
             await handleLogin(req, res, next)
 
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                data: { accessToken: 'access' }
-            }))
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { accessToken: 'access' },
+                })
+            )
             expect(res.cookie).toHaveBeenCalled()
         })
     })
@@ -178,7 +197,9 @@ describe('Auth Controller', () => {
 
         it('should clear cookie and return 204 if token exists', async () => {
             req.cookies = { refresh_token: 'token' }
-            ;(authService.getRefreshTokenByToken as jest.Mock).mockResolvedValue({ token: 'token' })
+            ;(
+                authService.getRefreshTokenByToken as jest.Mock
+            ).mockResolvedValue({ token: 'token' })
 
             await handleLogout(req, res, next)
 
@@ -191,39 +212,87 @@ describe('Auth Controller', () => {
         it('should call next with ApiError if no refresh token', async () => {
             await handleRefresh(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.UNAUTHORIZED)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.UNAUTHORIZED
+            )
         })
 
         it('should call next with ApiError if token is not found in DB', async () => {
             req.cookies = { refresh_token: 'token' }
-            ;(authService.getRefreshTokenByToken as jest.Mock).mockResolvedValue(null)
-            ;(authService.verifyToken as jest.Mock).mockResolvedValue({ userId: '1' })
+            ;(
+                authService.getRefreshTokenByToken as jest.Mock
+            ).mockResolvedValue(null)
+            ;(authService.verifyToken as jest.Mock).mockResolvedValue({
+                userId: '1',
+            })
 
             await handleRefresh(req, res, next)
             expect(next).toHaveBeenCalledWith(expect.any(ApiError))
-            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(HttpStatus.FORBIDDEN)
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.FORBIDDEN
+            )
         })
 
         it('should create new session if refresh token is valid', async () => {
             req.cookies = { refresh_token: 'token' }
             const payload = { userId: '1' }
             const user = { id: '1', role: 'USER' }
-            
-            ;(authService.getRefreshTokenByToken as jest.Mock).mockResolvedValue({ token: 'token', userId: '1' })
+
+            ;(
+                authService.getRefreshTokenByToken as jest.Mock
+            ).mockResolvedValue({ token: 'token', userId: '1' })
             ;(authService.verifyToken as jest.Mock).mockResolvedValue(payload)
             ;(authService.getUserById as jest.Mock).mockResolvedValue(user)
             ;(authService.createSession as jest.Mock).mockResolvedValue({
                 accessToken: 'new_access',
-                refreshToken: 'new_refresh'
+                refreshToken: 'new_refresh',
             })
 
             await handleRefresh(req, res, next)
 
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                data: { accessToken: 'new_access' }
-            }))
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    data: { accessToken: 'new_access' },
+                })
+            )
             expect(res.cookie).toHaveBeenCalled()
+        })
+    })
+
+    describe('handleChangePassword', () => {
+        it('should call next with ApiError if not authorized (no payload)', async () => {
+            req.payload = null
+            await handleChangePassword(req, res, next)
+            expect(next).toHaveBeenCalledWith(expect.any(ApiError))
+            expect((next as jest.Mock).mock.calls[0][0].statusCode).toBe(
+                HttpStatus.UNAUTHORIZED
+            )
+        })
+
+        it('should call changePassword and return 200 on success', async () => {
+            req.payload = { userId: '1' }
+            req.body = {
+                oldPassword: 'old_password',
+                newPassword: 'new_password',
+                newPasswordConfirm: 'new_password',
+            }
+            ;(authService.changePassword as jest.Mock).mockResolvedValue(
+                undefined
+            )
+
+            await handleChangePassword(req, res, next)
+
+            expect(authService.changePassword).toHaveBeenCalledWith(
+                '1',
+                req.body
+            )
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    message: 'Password changed successfully',
+                })
+            )
         })
     })
 })

@@ -58,3 +58,13 @@ export const createRefreshToken = async (userId: string, token: string) => {
         },
     })
 }
+
+export const updatePassword = async (
+    userId: string,
+    hashedPassword: string
+) => {
+    return prismaClient.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+    })
+}
