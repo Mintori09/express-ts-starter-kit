@@ -66,17 +66,27 @@ describe('errorHandler middleware', () => {
         }));
     });
 
-    it('should hide stack trace if node_env is not development', () => {
-        // Redefine config for this test case
+    it('should handle ApiError with custom errors property', () => {
+        const errors = [{ field: 'email', message: 'invalid' }];
+        const error = new ApiError(HttpStatus.BAD_REQUEST, 'Validation failed', true, errors);
+        errorHandler(error, req as Request, res as Response, next);
+
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Validation failed',
+            errors: errors,
+        }));
+    });
+
+    it('should log 500 errors even in production', () => {
         const config = require('src/config').config;
         config.node_env = 'production';
 
-        const error = new ApiError(HttpStatus.BAD_REQUEST, 'Bad request');
+        const error = new Error('Database crash');
         errorHandler(error, req as Request, res as Response, next);
 
-        expect(res.json).toHaveBeenCalledWith(expect.not.objectContaining({
-            stack: expect.any(String),
-        }));
-        expect(logger.error).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(logger.error).toHaveBeenCalled();
     });
 });

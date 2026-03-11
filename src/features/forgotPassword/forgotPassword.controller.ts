@@ -2,58 +2,48 @@ import { HttpStatus } from 'src/common/constants'
 import { ResetPasswordRequestBodyType } from './types'
 import { EmailRequestBody } from 'src/types/common'
 import { TypedRequest } from 'src/types/request'
-import { Response, NextFunction } from 'express'
+import { Response } from 'express'
 import * as authService from 'src/features/auth/auth.service'
 import * as forgotPasswordService from './forgotPassword.service'
+import { catchAsync } from 'src/utils/catchAsync'
+import { ApiError } from 'src/utils/ApiError'
+import { ApiResponse } from 'src/utils/ApiResponse'
 
-export const handleForgotPassword = async (
-    req: TypedRequest<EmailRequestBody>,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
+export const handleForgotPassword = catchAsync(
+    async (req: TypedRequest<EmailRequestBody>, res: Response) => {
         const { email } = req.body
 
         if (!email) {
-            return res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'Email is required!',
-            })
+            throw new ApiError(HttpStatus.BAD_REQUEST, 'Email is required!')
         }
 
         const user = await authService.getUserByEmail(email)
 
         if (!user || !user.emailVerified) {
-            return res.status(HttpStatus.UNAUTHORIZED).json({
-                message:
-                    'Your email is not verified! Please confirm your email!',
-            })
+            throw new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                'Your email is not verified! Please confirm your email!'
+            )
         }
 
         await forgotPasswordService.createResetToken(user.id, email)
 
-        return res.status(HttpStatus.OK).json({
-            message: 'Password reset email sent!',
-        })
-    } catch (error) {
-        next(error)
+        return ApiResponse.success(res, null, 'Password reset email sent!')
     }
-}
+)
 
-export const handleResetPassword = async (
-    req: TypedRequest<ResetPasswordRequestBodyType>,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
+export const handleResetPassword = catchAsync(
+    async (req: TypedRequest<ResetPasswordRequestBodyType>, res: Response) => {
         const { token } = req.params
         const { newPassword } = req.body
 
-        if (!token) return res.sendStatus(HttpStatus.NOT_FOUND)
+        if (!token) throw new ApiError(HttpStatus.NOT_FOUND, 'Token not found')
 
         if (!newPassword) {
-            return res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'New password is required!',
-            })
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                'New password is required!'
+            )
         }
 
         const resetToken = await forgotPasswordService.getResetToken(
@@ -61,9 +51,7 @@ export const handleResetPassword = async (
         )
 
         if (!resetToken) {
-            return res.status(HttpStatus.NOT_FOUND).json({
-                error: 'Invalid or expires token',
-            })
+            throw new ApiError(HttpStatus.NOT_FOUND, 'Invalid or expired token')
         }
 
         await forgotPasswordService.resetUserPassword(
@@ -71,10 +59,6 @@ export const handleResetPassword = async (
             newPassword
         )
 
-        return res.status(HttpStatus.OK).json({
-            message: 'Password reset successful!',
-        })
-    } catch (error) {
-        next(error)
+        return ApiResponse.success(res, null, 'Password reset successful!')
     }
-}
+)

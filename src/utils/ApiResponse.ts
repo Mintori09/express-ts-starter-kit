@@ -19,12 +19,14 @@ export class ApiResponse {
         res: Response,
         message = 'Error',
         statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
-        errors: any = null
+        errors: any = null,
+        stack: string | undefined = undefined
     ) {
         return res.status(statusCode).json({
             success: false,
             message,
             errors,
+            ...(stack && { stack }),
         })
     }
 }

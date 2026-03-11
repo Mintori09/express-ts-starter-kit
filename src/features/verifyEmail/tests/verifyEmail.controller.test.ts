@@ -56,7 +56,9 @@ describe('Verify Email Controller', () => {
         it('should return 400 if email is missing', async () => {
             req.body = {}
             await sendVerificationEmail(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.BAD_REQUEST })
+            )
         })
 
         it('should return 404 if email not found', async () => {
@@ -64,12 +66,18 @@ describe('Verify Email Controller', () => {
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(null)
 
             await sendVerificationEmail(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.NOT_FOUND })
+            )
         })
 
         it('should create token and send email if user is not verified', async () => {
             req.body = { email: 'test@example.com' }
-            const user = { id: '1', emailVerified: null }
+            const user = {
+                id: '1',
+                emailVerified: null,
+                email: 'test@example.com',
+            }
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(user)
             ;(
                 prismaClient.emailVerificationToken.findFirst as jest.Mock

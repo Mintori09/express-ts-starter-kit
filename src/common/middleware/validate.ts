@@ -2,6 +2,7 @@ import * as z from 'zod'
 import { RequestValidationSchema } from 'src/types/request'
 import { NextFunction, Response, Request } from 'express'
 import { HttpStatus } from 'src/common/constants'
+import { ApiError } from 'src/utils/ApiError'
 
 const validate = (schema: RequestValidationSchema) => {
     const combinedSchema = z.object(schema as any)
@@ -22,7 +23,12 @@ const validate = (schema: RequestValidationSchema) => {
             message: err.message,
         }))
 
-        return res.status(HttpStatus.BAD_REQUEST).json({ errors })
+        throw new ApiError(
+            HttpStatus.BAD_REQUEST,
+            'Validation failed',
+            true,
+            errors
+        )
     }
 }
 

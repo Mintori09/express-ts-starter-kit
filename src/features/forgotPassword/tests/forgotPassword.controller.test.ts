@@ -57,7 +57,9 @@ describe('Forgot Password Controller', () => {
         it('should return 400 if email is missing', async () => {
             req.body = {}
             await handleForgotPassword(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.BAD_REQUEST })
+            )
         })
 
         it('should return 401 if user is not verified or not found', async () => {
@@ -65,7 +67,9 @@ describe('Forgot Password Controller', () => {
             ;(prismaClient.user.findUnique as jest.Mock).mockResolvedValue(null)
 
             await handleForgotPassword(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.UNAUTHORIZED })
+            )
         })
 
         it('should send reset email and return 200', async () => {
@@ -84,7 +88,9 @@ describe('Forgot Password Controller', () => {
         it('should return 404 if token is missing', async () => {
             req.params = {}
             await handleResetPassword(req, res, next)
-            expect(res.sendStatus).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.NOT_FOUND })
+            )
         })
 
         it('should return 404 if token is invalid or expired', async () => {
@@ -95,7 +101,9 @@ describe('Forgot Password Controller', () => {
             )
 
             await handleResetPassword(req, res, next)
-            expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND)
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({ statusCode: HttpStatus.NOT_FOUND })
+            )
         })
 
         it('should update password and return 200', async () => {

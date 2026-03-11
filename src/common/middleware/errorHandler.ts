@@ -3,6 +3,7 @@ import { config } from 'src/config'
 import { HttpStatus } from 'src/common/constants'
 import logger from './logger'
 import { ApiError } from 'src/utils/ApiError'
+import { ApiResponse } from 'src/utils/ApiResponse'
 
 export const errorHandler = (
     err: any,
@@ -19,15 +20,12 @@ export const errorHandler = (
 
     res.locals.errorMessage = err.message
 
-    const response = {
-        success: false,
-        message,
-        ...(config.node_env === 'development' && { stack: err.stack }),
-    }
+    const errors = err.errors || null
+    const stack = config.node_env === 'development' ? err.stack : undefined
 
-    if (config.node_env === 'development') {
+    if (config.node_env === 'development' || statusCode >= 500) {
         logger.error(err)
     }
 
-    res.status(statusCode).json(response)
+    ApiResponse.error(res, message, statusCode, errors, stack)
 }

@@ -1,37 +1,30 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { EmailRequestBody } from 'src/types/common'
 import { TypedRequest } from 'src/types/request'
 import { HttpStatus } from 'src/common/constants'
 import { config } from 'src/config'
 import * as authService from 'src/features/auth/auth.service'
 import * as verifyEmailService from './verifyEmail.service'
+import { catchAsync } from 'src/utils/catchAsync'
+import { ApiError } from 'src/utils/ApiError'
+import { ApiResponse } from 'src/utils/ApiResponse'
 
-export const sendVerificationEmail = async (
-    req: TypedRequest<EmailRequestBody>,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
+export const sendVerificationEmail = catchAsync(
+    async (req: TypedRequest<EmailRequestBody>, res: Response) => {
         const { email } = req.body
 
         if (!email) {
-            return res.status(HttpStatus.BAD_REQUEST).json({
-                message: 'Email is required!',
-            })
+            throw new ApiError(HttpStatus.BAD_REQUEST, 'Email is required!')
         }
 
         const user = await authService.getUserByEmail(email)
 
         if (!user) {
-            return res.status(HttpStatus.NOT_FOUND).json({
-                error: 'Email not found!',
-            })
+            throw new ApiError(HttpStatus.NOT_FOUND, 'Email not found!')
         }
 
         if (user.emailVerified) {
-            return res.status(HttpStatus.CONFLICT).json({
-                error: 'Email already verified!',
-            })
+            throw new ApiError(HttpStatus.CONFLICT, 'Email already verified!')
         }
 
         const existingToken = await verifyEmailService.getExistingValidToken(
@@ -39,27 +32,20 @@ export const sendVerificationEmail = async (
         )
 
         if (existingToken) {
-            return res.status(HttpStatus.BAD_REQUEST).json({
-                error: 'Verification email already sent!',
-            })
+            throw new ApiError(
+                HttpStatus.BAD_REQUEST,
+                'Verification email already sent!'
+            )
         }
 
         await verifyEmailService.createVerificationToken(user.id, email)
 
-        return res.status(HttpStatus.OK).json({
-            message: 'Verification email sent!',
-        })
-    } catch (error) {
-        next(error)
+        return ApiResponse.success(res, null, 'Verification email sent!')
     }
-}
+)
 
-export const handleVerifyEmail = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
+export const handleVerifyEmail = catchAsync(
+    async (req: Request, res: Response) => {
         const { token } = req.params as { token: string }
         const loginUrl = `${config.cors.cors_origin}/login`
 
@@ -130,7 +116,5 @@ export const handleVerifyEmail = async (
                     true
                 )
             )
-    } catch (error) {
-        next(error)
     }
-}
+)

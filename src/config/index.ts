@@ -6,6 +6,7 @@ import {
 } from './cookieConfig'
 import transporter from './nodemailer'
 import prismaClient from './prisma'
+import { helmetConfig } from './helmetConfig'
 
 export {
     prismaClient,
@@ -14,4 +15,5 @@ export {
     corsConfig,
     refreshTokenCookieConfig,
     clearRefreshTokenCookieConfig,
+    helmetConfig,
 }
