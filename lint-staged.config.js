@@ -1,9 +1,11 @@
 export default {
     'src/**/*.{ts,js}': [
-        'prettier --write',
-        // Run a full build (type-check) for the whole project.
-        // We use a function to ignore the list of changed files passed by lint-staged.
-        () => 'pnpm build',
-        'pnpm test --findRelatedTests',
+        'pnpm exec prettier --write',
+        'pnpm exec eslint --fix', // Added pnpm exec
+        'pnpm test --findRelatedTests --passWithNoTests',
+    ],
+    'src/**/*.ts': [() => 'pnpm build'],
+    '**/*.{json,md}': [
+        'pnpm exec prettier --write', // Added pnpm exec
     ],
 }

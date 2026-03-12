@@ -7,6 +7,7 @@ Base URL: `/api/v1`
 All API responses follow a consistent structure:
 
 ### Success Response
+
 ```json
 {
     "success": true,
@@ -16,6 +17,7 @@ All API responses follow a consistent structure:
 ```
 
 ### Paginated Success Response
+
 ```json
 {
     "success": true,
@@ -31,6 +33,7 @@ All API responses follow a consistent structure:
 ```
 
 ### Error Response
+
 ```json
 {
     "success": false,
@@ -43,13 +46,13 @@ All API responses follow a consistent structure:
 
 For endpoints that support listing multiple items, the following query parameters are supported:
 
-| Parameter | Type | Description | Default |
-| :--- | :--- | :--- | :--- |
-| `page` | `number` | The page number to retrieve | `1` |
-| `limit` | `number` | Number of items per page | `10` |
-| `sortBy` | `string` | Field name to sort by | `createdAt` |
-| `sortOrder` | `string` | Sort direction (`asc` or `desc`) | `desc` |
-| `search` | `string` | Search query string | - |
+| Parameter   | Type     | Description                      | Default     |
+| :---------- | :------- | :------------------------------- | :---------- |
+| `page`      | `number` | The page number to retrieve      | `1`         |
+| `limit`     | `number` | Number of items per page         | `10`        |
+| `sortBy`    | `string` | Field name to sort by            | `createdAt` |
+| `sortOrder` | `string` | Sort direction (`asc` or `desc`) | `desc`      |
+| `search`    | `string` | Search query string              | -           |
 
 **Example:**
 `GET /api/v1/users?page=2&limit=5&sortBy=firstName&sortOrder=asc&search=john`

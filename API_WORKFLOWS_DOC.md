@@ -9,16 +9,16 @@ This document outlines the architecture, error handling standards, and logic wor
 The project follows a **Controller-Service-Repository** pattern:
 
 1. **Controllers**:
-   - Handle incoming HTTP requests.
-   - Wrapped in `catchAsync` to automate error propagation to the global error handler.
-   - Use `ApiResponse` for consistent JSON responses.
+    - Handle incoming HTTP requests.
+    - Wrapped in `catchAsync` to automate error propagation to the global error handler.
+    - Use `ApiResponse` for consistent JSON responses.
 2. **Services**:
-   - Contain the core business logic.
-   - Agnostic of the HTTP layer (no `req`/`res` objects).
-   - Throw `ApiError` for operational failures.
+    - Contain the core business logic.
+    - Agnostic of the HTTP layer (no `req`/`res` objects).
+    - Throw `ApiError` for operational failures.
 3. **Repositories**:
-   - Abstract database operations (Prisma).
-   - Provide a clean interface for data persistence.
+    - Abstract database operations (Prisma).
+    - Provide a clean interface for data persistence.
 
 ---
 

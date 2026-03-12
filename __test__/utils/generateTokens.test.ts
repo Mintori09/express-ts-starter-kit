@@ -1,10 +1,13 @@
-import { createAccessToken, createRefreshToken } from 'src/utils/generateTokens.util';
-import jwt from 'jsonwebtoken';
-import { config } from 'src/config';
+import {
+    createAccessToken,
+    createRefreshToken,
+} from 'src/utils/generateTokens.util'
+import jwt from 'jsonwebtoken'
+import { config } from 'src/config'
 
 jest.mock('jsonwebtoken', () => ({
     sign: jest.fn().mockReturnValue('mock-token'),
-}));
+}))
 
 jest.mock('src/config', () => ({
     config: {
@@ -19,26 +22,26 @@ jest.mock('src/config', () => ({
             },
         },
     },
-}));
+}))
 
 describe('generateTokens util', () => {
     it('should generate an access token', () => {
-        const token = createAccessToken('user123', 'USER');
-        expect(token).toBe('mock-token');
+        const token = createAccessToken('user123', 'USER')
+        expect(token).toBe('mock-token')
         expect(jwt.sign).toHaveBeenCalledWith(
             { userId: 'user123', role: 'USER' },
             'access-secret',
             { expiresIn: '15m' }
-        );
-    });
+        )
+    })
 
     it('should generate a refresh token', () => {
-        const token = createRefreshToken('user123');
-        expect(token).toBe('mock-token');
+        const token = createRefreshToken('user123')
+        expect(token).toBe('mock-token')
         expect(jwt.sign).toHaveBeenCalledWith(
             { userId: 'user123' },
             'refresh-secret',
             { expiresIn: '7d' }
-        );
-    });
-});
+        )
+    })
+})

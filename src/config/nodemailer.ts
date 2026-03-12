@@ -22,7 +22,10 @@ const createTestAccount = async () => {
     }
 }
 
-if (config.email.smtp.host !== 'localhost' && config.email.smtp.auth.username !== 'test_user') {
+if (
+    config.email.smtp.host !== 'localhost' &&
+    config.email.smtp.auth.username !== 'test_user'
+) {
     transporter = nodemailer.createTransport({
         host: config.email.smtp.host,
         port: parseInt(config.email.smtp.port),

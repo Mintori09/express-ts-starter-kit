@@ -4,50 +4,37 @@ set dotenv-load := true
 default:
     @just --list
 
-# Initial project setup (install deps, setup .env, generate prisma client)
+# Initial project setup
 setup:
     pnpm install
-    @if [ ! -f .env ]; then \
-        cp .env-example .env; \
-        echo "Created .env from .env-example"; \
-    fi
+    @if [ ! -f .env ]; then cp .env-example .env; echo "Created .env"; fi
     pnpm exec prisma generate
 
-# Run the development server with watch mode
+# Run dev server
 dev:
     pnpm dev
 
-# Build the project for production
+# Build for production (ensures Prisma client is up to date first)
 build:
+    pnpm exec prisma generate
     pnpm build
 
-# Run all tests using Jest
-test:
-    pnpm test
-
-# Generate a new database migration
-db-migrate name:
-    pnpm exec prisma migrate dev --name {{name}}
-
-# Push schema changes to the database without creating a migration
+# Sync schema to DB without migrations (best for prototyping)
 db-push:
     pnpm exec prisma db push
 
-# Seed the database with initial data
-db-seed:
-    pnpm exec prisma db seed
+# Generate a migration (requires a name: just db-migrate "add-user-table")
+db-migrate name:
+    pnpm exec prisma migrate dev --name {{name}}
 
-# Open Prisma Studio to view/edit data
-db-studio:
-    pnpm exec prisma studio
-
-# Run linting, type-checking, and tests
+# Clean, format, and verify the build
 check:
-    pnpm lint
-    pnpm build
+    pnpm exec prettier --write .
+    # -pnpm exec eslint --fix . --ignore-pattern "bruno/*"
+    just build
     pnpm test
 
-# Clean up build artifacts and logs
-clean:
-    rm -rf dist/
-    rm -rf logs/*.log
+# Deep clean (removes node_modules for a fresh start)
+reset-ignored:
+    rm -rf dist/ logs/*.log node_modules/
+

@@ -7,7 +7,7 @@ The **Express TypeScript Starter Kit** is a production-ready boilerplate designe
 ## Features
 
 - **TypeScript**: Full type safety across the application.
-- **Layered Architecture (Modular)**: 
+- **Layered Architecture (Modular)**:
     - **Controllers**: Handle request/response logic using `catchAsync`.
     - **Services**: Contain core business logic, agnostic of HTTP layer.
     - **Repositories**: Abstract database operations (Prisma) from services.
@@ -98,18 +98,18 @@ This script will attempt to verify the connection and send a test email to the `
 
 The application uses Zod to validate environment variables defined in `.env`.
 
-| Variable               | Description                                           | Default       |
-| :--------------------- | :---------------------------------------------------- | :------------ |
-| `NODE_ENV`             | Environment (development, test, production)           | `development` |
-| `PORT`                 | Server listening port                                 | `4000`        |
-| `DATABASE_URL`         | Prisma database connection string                     | `mysql://...` |
-| `ACCESS_TOKEN_SECRET`  | Secret for Access JWT (min 8 chars)                   | -             |
-| `REFRESH_TOKEN_SECRET` | Secret for Refresh JWT (min 8 chars)                  | -             |
-| `SMTP_HOST`            | SMTP server for emails                                | `localhost`   |
-| `SMTP_PORT`            | SMTP server port (465 for SSL/TLS, 587 for STARTTLS)  | `587`         |
-| `SMTP_USERNAME`        | SMTP authentication username                          | `test_user`   |
-| `SMTP_PASSWORD`        | SMTP authentication password                          | -             |
-| `EMAIL_FROM`           | Sender address for outgoing emails                    | -             |
+| Variable               | Description                                          | Default       |
+| :--------------------- | :--------------------------------------------------- | :------------ |
+| `NODE_ENV`             | Environment (development, test, production)          | `development` |
+| `PORT`                 | Server listening port                                | `4000`        |
+| `DATABASE_URL`         | Prisma database connection string                    | `mysql://...` |
+| `ACCESS_TOKEN_SECRET`  | Secret for Access JWT (min 8 chars)                  | -             |
+| `REFRESH_TOKEN_SECRET` | Secret for Refresh JWT (min 8 chars)                 | -             |
+| `SMTP_HOST`            | SMTP server for emails                               | `localhost`   |
+| `SMTP_PORT`            | SMTP server port (465 for SSL/TLS, 587 for STARTTLS) | `587`         |
+| `SMTP_USERNAME`        | SMTP authentication username                         | `test_user`   |
+| `SMTP_PASSWORD`        | SMTP authentication password                         | -             |
+| `EMAIL_FROM`           | Sender address for outgoing emails                   | -             |
 
 ## Examples
 
