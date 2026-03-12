@@ -3,7 +3,10 @@ import { config } from './config'
 import { logger } from './common/middleware'
 
 const server = app.listen(Number(config.server.port), () => {
-    logger.log('info', `Server is running on Port: ${config.server.port}`)
+    logger.log(
+        'info',
+        `Server is running on: http://localhost:${config.server.port}`
+    )
 })
 
 const exitHandler = () => {
